@@ -1,0 +1,19 @@
+.axis-label{
+    font-size: small;
+}
+
+.radar-tooltip {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: opacity 0.3s; 
+
+    color: black;             
+    font-family: Arial, sans-serif; 
+    font-size: 14px;         
+    line-height: 1.5;        
+}
