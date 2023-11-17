@@ -15,3 +15,8 @@
 4. **Spotify Web API Authorization Examples**  
    This repository contains examples of how to authorize applications using the Spotify Web API, which is crucial for any app that interacts with Spotify.  
    [Spotify Web API Authorization Examples on GitHub](https://github.com/spotify/web-api-examples/tree/master/authorization/authorization_code)
+
+5. **Customizing Heatmaps in D3.js**
+   This resource provides detailed guidance on customizing heatmaps using D3.js.
+   [Customizing Heatmaps in D3.js](https://d3-graph-gallery.com/graph/heatmap_style.html)
+
