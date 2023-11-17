@@ -6,6 +6,8 @@ import { SpotifyAuthProvider } from "./context/SpotifyAuthContext";
 import SpotifyLogin from "./components/SpotifyLogin";
 import { SelectedSongsProvider } from "./context/SelectedSongsContext";
 import SelectedSongsList from "./components/SelectedSongsList/SelectedSongsList";
+import HeatMapView from "./views/HeatMapView";
+
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
             <SearchBar />
             <RadarChartView />
             <SelectedSongsList/>
+            <HeatMapView/>
           </header>
         </div>
       </SelectedSongsProvider>
