@@ -10,7 +10,7 @@ export default class HeatMap {
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: _config.containerWidth || 1900,
+            containerWidth: _config.containerWidth || 1500,
             containerHeight: _config.containerHeight || 1250,
             margin: _config.margin || { top: 120, right: 20, bottom: 20, left: 350 },
             legendWidth: _config.legendWidth || 250,
@@ -28,12 +28,11 @@ export default class HeatMap {
             "#f0b1ab",
             "#e67c73" // red
         ];
+        
         this.attributeDescription = {
-            explicit: "whether the track has explicit lyrics(1) or not(0)",
             danceability: "0.0 being least danceable and 1.0 being most danceable",
             energy: "measures intensity in music",
             loudness: "normalized overall loudness of a track in decibels (dB)",
-            mode: "indicates the modality (major(1) or minor(0)) of a track",
             speechiness: "detects the presence of spoken words in a track",
             acousticness: "confidence measure of whether the track is acoustic",
             instrumentalness: "predicts whether a track contains no vocals",
@@ -41,12 +40,11 @@ export default class HeatMap {
             valence: "describes the musical positiveness conveyed by a track",
             tempo: "normalized overall estimated tempo of a track in beats per minute (BPM)"
         }
+
         this.xAxisArray = [
-            'explicit',
             'danceability',
             'energy',
             'loudness',
-            'mode',
             'speechiness',
             'acousticness',
             'instrumentalness',
@@ -144,7 +142,7 @@ export default class HeatMap {
         });
 
         // update yScale domain
-        vis.yScale.domain(vis.data.map(d => d.track_name))
+        vis.yScale.domain(vis.data.map(d => truncateString(d.track_name, 25)))
         vis.renderVis();
     }
 
@@ -159,7 +157,7 @@ export default class HeatMap {
             .attr('x', vis.config.margin.left)
             .attr('y', vis.config.chartTitleHeight)
             .attr('text-anchor', 'start')
-            .text('Top 25 Popular Songs')
+            .text('Today\'\s Top Hits')
             .style('font-size', vis.config.chartTitleHeight)
             .style('font-weight', 600)
             .style('fill', "white");
@@ -195,7 +193,7 @@ export default class HeatMap {
             .attr('class', 'rect')
             .attr('track_id', d => d.track_id)
             .attr("x", d => vis.xScale(d.attribute))
-            .attr("y", d => vis.yScale(d.trackName))
+            .attr("y", d => vis.yScale(truncateString(d.trackName, 25)))
             .attr("rx", 5)
             .attr("ry", 5)
             .attr("width", vis.xScale.bandwidth())
@@ -232,7 +230,18 @@ export default class HeatMap {
     }
 }
 
+//helper functions
+
 function findArtistByTrackName(tracks, trackName) {
     const track = tracks.find(track => track.track_name === trackName);
     return track ? track.artists : null;
 }
+
+function truncateString(str, num) {
+    if (str.length > num) {
+      return str.slice(0, num) + "...";
+    } else {
+      return str;
+    }
+  }
+  

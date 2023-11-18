@@ -1,63 +1,164 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
 import HeatMap from "../charts/HeatMap/HeatMap";
-import * as d3 from 'd3'
+import { useSpotifyAuth } from "../context/SpotifyAuthContext";
 
+import axios from "axios";
 
 const HeatMapView = () => {
-    const HeatMapRef = useRef(null);
-    const [filteredData, setFilteredData] = useState(null);
-    const [heatMap, setHeatMap] = useState(null);
+  const { spotifyAccessToken } = useSpotifyAuth();
+  const accessToken = spotifyAccessToken;
+  const HeatMapRef = useRef(null);
+  const [data, setData] = useState(null);
+  const [heatMap, setHeatMap] = useState(null);
+  const [tracks, setTracks] = useState(null);
+  const [trackIds, setTrackIds] = useState('');
+  const [trackAudioFeatures, setTrackAudioFeatures] = useState(null);
+  const numSongsToDisplay = 25;
 
-    useEffect(() => {
-        const heatMap = new HeatMap(
-            { parentElement: HeatMapRef.current }, []
-        );
-        setHeatMap(heatMap);
-    }, []);
+  // // get track id, artists, track_name
+  // const getTracksFromPlaylist = async () => {
+  //   try {
+  //     const response = await axios.get("https://api.spotify.com/v1/playlists/37i9dQZF1DXcBWIGoYBM5M/tracks", {
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       params: {
+  //         fields: 'items(track(artists(name),id,name))',
+  //         limit: numSongsToDisplay,
+  //         offset: numSongsToDisplay
+  //       },
+  //     });
+  //     setTracks(response.data.items);
+  //     setTrackIds(response.data.items.map(item => item.track.id).join(','));
+  //   } catch (error) {
+  //     console.error("Error during Spotify search", error);
+  //   }
+  // };
 
-    // // filterData
-    useEffect(() => {
-        d3.csv('/dataset.csv').then(loadedData => {
-            // min max value of tempo, loudness, to normalize tempo and loudness to a range of 0 to 1
-            const minTempo = 0;
-            const maxTempo = 243;
-            const minLoudness = -49.531;
-            const maxLoudness = 4.532;
-            // Filter data by popularity
-            let filteredData = loadedData.filter(d => +d.popularity > 85);
-            // remove duplicates, sort by desceending order by popularity, cuts top 100
-            let uniqueDataMap = new Map();
-            filteredData.forEach(item => uniqueDataMap.set(item.track_id, item));
-            let uniqueDataArray = Array.from(uniqueDataMap.values());
-            // sort by desceending order by popularity
-            uniqueDataArray.sort((a, b) => b.popularity - a.popularity);
-            // cuts top 25
-            let top25 = uniqueDataArray.slice(0, 25);
-            // change explicit to 1 or 0, normalized tempo, loudnesss
-            top25.forEach(d => {
-              d.explicit === 'True' ? d.explicit = 1 : d.explicit = 0;
-              d.tempo = (d.tempo - minTempo) / (maxTempo - minTempo);
-              d.loudness = (d.loudness - minLoudness) / (maxLoudness - minLoudness);
-            })
-            setFilteredData(top25);
-          })
-    }, []);
+  // // get audio features like tempo
+  // const fetchTrackFeatures = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `https://api.spotify.com/v1/audio-features`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //         params: {
+  //           ids: trackIds,
+  //         },
+  //       }
+  //     );
+  //     setTrackAudioFeatures(response.data.audio_features);
+  //   } catch (error) {
+  //     console.error("Error fetching track features", error);
+  //   }
+  // };
 
-    useEffect(() => {
-        if (heatMap && filteredData) {
-            heatMap.data = filteredData;
-            heatMap.updateVis();
-        }
-      }, [filteredData, heatMap]);
-
-
-    return (
-        <div>
-            <svg ref={HeatMapRef} id="heatmap"></svg>
-            <div id="heatmap-tooltip" />
-        </div>
+  useEffect(() => {
+    const heatMap = new HeatMap(
+      { parentElement: HeatMapRef.current }, []
     );
+    setHeatMap(heatMap);
+  }, []);
+
+  // if logged in
+  useEffect(() => {
+    if (accessToken) {
+      // get track id, artists, track_name
+      const getTracksFromPlaylist = async () => {
+        try {
+          const response = await axios.get("https://api.spotify.com/v1/playlists/37i9dQZF1DXcBWIGoYBM5M/tracks", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              fields: 'items(track(artists(name),id,name))',
+              limit: numSongsToDisplay,
+              offset: numSongsToDisplay
+            },
+          });
+          setTracks(response.data.items);
+          setTrackIds(response.data.items.map(item => item.track.id).join(','));
+        } catch (error) {
+          console.error("Error during Spotify search", error);
+        }
+      };
+      getTracksFromPlaylist();
+    }
+  }, [accessToken]);
+
+  // when trackIds is set from getTracksFromPlaylist
+  useEffect(() => {
+    if (trackIds) {
+      // get audio features like tempo
+      const fetchTrackFeatures = async () => {
+        try {
+          const response = await axios.get(
+            `https://api.spotify.com/v1/audio-features`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+              params: {
+                ids: trackIds,
+              },
+            }
+          );
+          setTrackAudioFeatures(response.data.audio_features);
+        } catch (error) {
+          console.error("Error fetching track features", error);
+        }
+      };
+      fetchTrackFeatures();
+    }
+  }, [trackIds, accessToken])
+
+  // when audioFeatures and tracks are set, merge 2 into array of objects for heatmap
+  useEffect(() => {
+    if (tracks && trackAudioFeatures) {
+      let resultArr = [];
+      for (let i = 0; i < tracks.length; i++) {
+        const { artists, name: track_name, id: track_id } = tracks[i].track;
+        const artistsString = artists.map(({ name }) => name).join('; ');
+        // attributess to omit
+        const { time_signature, duration_ms, track_href, analysis_url, type, uri, id, mode, key, ...audioFeatures }
+          = trackAudioFeatures[i];
+        let resultObj = { track_name, track_id, artists: artistsString, ...audioFeatures };
+        resultArr.push(resultObj);
+      }
+      console.log(resultArr);
+      setData(resultArr);
+    }
+  }, [trackAudioFeatures, tracks])
+
+
+  useEffect(() => {
+    if (heatMap && data) {
+      // process data
+      let processedData = data;
+      const minTempo = 0;
+      const maxTempo = 243;
+      const minLoudness = -49.531;
+      const maxLoudness = 4.532;
+      //normalized tempo, loudnesss
+      processedData.forEach(d => {
+        d.tempo = (d.tempo - minTempo) / (maxTempo - minTempo);
+        d.loudness = (d.loudness - minLoudness) / (maxLoudness - minLoudness);
+      })
+      heatMap.data = processedData;
+      heatMap.updateVis();
+    }
+  }, [data, heatMap]);
+
+
+  return (
+    <div>
+      <svg ref={HeatMapRef} id="heatmap"></svg>
+      <div id="heatmap-tooltip" />
+    </div>
+  );
 }
 
 export default HeatMapView;
