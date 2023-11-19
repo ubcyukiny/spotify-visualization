@@ -28,7 +28,7 @@ export default class HeatMap {
             "#f0b1ab",
             "#e67c73" // red
         ];
-        
+
         this.attributeDescription = {
             danceability: "0.0 being least danceable and 1.0 being most danceable",
             energy: "measures intensity in music",
@@ -77,7 +77,6 @@ export default class HeatMap {
             .padding(0.05);
 
         vis.yScale = d3.scaleBand()
-            // .domain(vis.data.map(d => d.track_name))
             .range([0, vis.height])
             .padding(0.10);
 
@@ -114,6 +113,7 @@ export default class HeatMap {
             .attr('transform', `translate(${vis.config.containerWidth - vis.config.legendWidth - vis.config.margin.right}, ${vis.config.chartTitleHeight})`);
 
         vis.chart = vis.svg.append('g')
+            .attr('class', 'chart')
             .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
 
         vis.xAxisG = vis.chart.append('g')
@@ -154,10 +154,10 @@ export default class HeatMap {
         // render title, color scale legend
         vis.title.append('text')
             .attr('class', 'heatmap-title')
-            .attr('x', vis.config.margin.left)
+            .attr('x', vis.yScale.bandwidth()) // line up with the album pictures
             .attr('y', vis.config.chartTitleHeight)
             .attr('text-anchor', 'start')
-            .text('Today\'\s Top Hits')
+            .text('Today\'s Top Hits')
             .style('font-size', vis.config.chartTitleHeight)
             .style('font-weight', 600)
             .style('fill', "white");
@@ -185,6 +185,39 @@ export default class HeatMap {
         vis.xAxisG.call(vis.xAxis).call(g => g.select('.domain').remove());;
         vis.yAxisG.call(vis.yAxis).call(g => g.select('.domain').remove());;
 
+        // render album picture for yAxis
+        const textElement = d3.select('.tick text').node();
+        const bbox = textElement.getBBox();
+        vis.yAxisG
+            .selectAll('.tick')
+            .data(vis.data)
+            .append('image')
+            .attr('xlink:href', d => d.album.images[0].url)
+            .attr('x', -vis.config.margin.left + vis.yScale.bandwidth())
+            .attr('y', -bbox.height)
+            .attr('width', vis.yScale.bandwidth())
+            .attr('height', vis.yScale.bandwidth())
+            .attr('preserveAspectRatio', 'xMidYMid meet');
+
+        // positioning track_names
+        vis.yAxisG
+            .selectAll(`text`)
+            .data(vis.data)
+            .attr('url', d => d.external_urls.spotify)
+            .attr('x', -vis.config.margin.left + vis.yScale.bandwidth() * 3)
+            .style(`text-anchor`, `start`)
+            .style('cursor', 'pointer')
+            .on('click', function (event, d) {
+                window.open(d.external_urls.spotify, '_blank');
+                // change it to interact with select songs perhaps
+            })
+            .on('mouseover', function () {
+                d3.select(this).style('text-decoration', 'underline');
+            })
+            .on('mouseout', function () {
+                d3.select(this).style('text-decoration', 'none');
+            })
+
         // render heatmap rects
         const rects = vis.chart.selectAll("rect")
             .data(vis.heatmapData)
@@ -208,7 +241,7 @@ export default class HeatMap {
             .on('mouseover', (event, d) => {
 
                 d3.select('#heatmap-tooltip')
-                .style("display", "block")
+                    .style("display", "block")
                     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
                     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
                     .html(`
@@ -239,9 +272,8 @@ function findArtistByTrackName(tracks, trackName) {
 
 function truncateString(str, num) {
     if (str.length > num) {
-      return str.slice(0, num) + "...";
+        return str.slice(0, num) + "...";
     } else {
-      return str;
+        return str;
     }
-  }
-  
+}
