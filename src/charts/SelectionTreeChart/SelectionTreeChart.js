@@ -10,7 +10,7 @@ export default class SelectionTreeChart {
     constructor(_config, _data) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: _config.containerWidth || 600,
+            containerWidth: _config.containerWidth || 1000,
             containerHeight: _config.containerHeight || 600,
             margin: _config.margin || { top: 20, right: 20, bottom: 20, left: 20 },
             tooltipPadding: _config.tooltipPadding || 15,
@@ -18,6 +18,7 @@ export default class SelectionTreeChart {
             labelFactor: _config.labelFactor || 1.3,
         };
         this.data = _data;
+        console.log(this.data);
         this.initVis();
     }
 
@@ -50,25 +51,54 @@ export default class SelectionTreeChart {
                 `translate(${vis.config.margin.left}, ${vis.config.margin.top})`
             );
 
-
-        // vis.radarArea = vis.chart.append("g").attr("class", "radar-area");
-
-        // Define size of SVG drawing area
+        vis.cluster = d3.cluster().size([vis.height, vis.width - 100]);
     }
 
     /**
    * Prepare the data and scales before we render it.
    */
     updateVis() {
+        const vis = this;
 
+        vis.root = d3.hierarchy(vis.data, d => d.children);
+        vis.cluster(vis.root);
+        console.log("selection chart");
+        console.log(vis.data);
+
+        this.renderVis();
     }
 
     /**
    * Bind data to visual elements.
    */
     renderVis() {
+        const vis = this;
 
+        vis.chart.selectAll('path')
+            .data(vis.root.descendants().slice(1))
+            .join('path')
+            .attr("d", d => {
+                return "M" + d.y + "," + d.x
+                        + "C" + (d.parent.y + 50) + "," + d.x
+                        + " " + (d.parent.y + 150) + "," + d.parent.x // 50 and 150 are coordinates of inflexion, play with it to change links shape
+                        + " " + d.parent.y + "," + d.parent.x;
+              })
+            .style('fill', 'none')
+            .attr('stroke', '#ccc');
+
+        vis.chart.selectAll('g')
+            .data(vis.root.descendants())
+            .join('g')
+            .attr('transform', d => {
+                return `translate(${d.y}, ${d.x})`
+            })
+            .append('circle')
+                .attr('r', 7)
+                .style("fill", "#69b3a2")
+                .attr("stroke", "black")
+                .style("stroke-width", 2);
     }
+
 }
 
 

@@ -1,45 +1,49 @@
-import { useEffect, useContext, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import SelectionTreeChart from "../charts/SelectionTreeChart/SelectionTreeChart";
-
+import SelectionTreeSearchBar from "../components/SelectionTree/SelectionTreeSearchBar";
 
 export default function SelectionTreeView() {
-    const sample =  [{
-        name: "something",
-        artist: "name",
-        duration_ms: 123123,
-        features: [
-            { axis: "danceability", value: 1 },
-            { axis: "energy", value: 2 },
-            { axis: "valence", value: 3 },
-            { axis: "loudness", value: 1 },
-            { axis: "speechiness", value: 2 },
-            { axis: "acousticness", value: 3 },
-            { axis: "instrumentalness", value: 1 },
-            { axis: "liveness", value: 2 },
-        ]
-    }];
+    const sample = {
+        "name":"CEO",
+        "children":[{
+            "name":"boss1",
+            "colname":"level2",
+            "children":[
+                {"name":"mister_a","colname":"level3"},
+                {"name":"mister_b","colname":"level3"},
+                {"name":"mister_c","colname":"level3"},
+                {"name":"mister_d","colname":"level3"}
+            ]}, {
+            "name":"boss2",
+            "colname":"level2",
+            "children":[
+                {"name":"mister_e","colname":"level3"},
+                {"name":"mister_f","colname":"level3"},
+                {"name":"mister_g","colname":"level3"},
+                {"name":"mister_h","colname":"level3"}
+            ]}]
+    };
 
     const selectionTreeChartRef = useRef(null);
+    const [initialSong, setInitialSong] = useState();
     const [tree, setTree] = useState(sample);
 
+    const selectionTreeChart = new SelectionTreeChart(
+        { parentElement: selectionTreeChartRef.current }, tree
+    );
 
 
     useEffect(() => {
-        const selectionTreeChart = new SelectionTreeChart(
-            { parentElement: selectionTreeChartRef.current }, null
-        );
+        const tree = {track: initialSong, children: []};
         console.log(tree);
-    }, []);
-
-    useEffect(() => {
-
-        // const selectionTree = new SelectionTree();
-        // SelectionTreeChart.updateVis(tree);
-
-    }, [tree]);
+        selectionTreeChart.data = tree;
+        console.log("root selected");
+        selectionTreeChart.updateVis();
+    }, [initialSong]);
 
     return (
         <div>
+            <SelectionTreeSearchBar setInitialSong={setInitialSong} />
             <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
         </div>
     );
