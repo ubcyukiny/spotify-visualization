@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-// import "./style.css";
+import "./style.css";
 
 export default class SelectionTreeChart {
     /**
@@ -22,13 +22,9 @@ export default class SelectionTreeChart {
         this.initVis();
     }
 
-    /**
-   * We initialize scales/axes and append static elements, such as axis titles.
-   */
     initVis() {
         let vis = this;
 
-        // Calculate inner chart size. Margin specifies the space around the actual chart.
         vis.width =
             vis.config.containerWidth -
                 vis.config.margin.left -
@@ -54,9 +50,6 @@ export default class SelectionTreeChart {
         vis.cluster = d3.cluster().size([vis.height, vis.width - 100]);
     }
 
-    /**
-   * Prepare the data and scales before we render it.
-   */
     updateVis() {
         const vis = this;
 
@@ -68,11 +61,24 @@ export default class SelectionTreeChart {
         this.renderVis();
     }
 
-    /**
-   * Bind data to visual elements.
-   */
     renderVis() {
         const vis = this;
+
+        const getTooltipContent = (track) => {
+            return `<div class="track-name">${track.trackName}</div>
+                    <div>${track.artists[0]}</div>
+                    <ul>
+                        <li>Danceability: ${track.danceability}</li>
+                        <li>Energy: ${track.energy}</li>
+                        <li>Instrumentalness: ${track.instrumentalness}</li>
+                        <li>Liveness: ${track.liveness}</li>
+                        <li>Loudness: ${track.loudness}</li>
+                        <li>Speechiness: ${track.speechiness}</li>
+                        <li>Tempo: ${track.tempo}</li>
+                        <li>Valence: ${track.valence}</li>
+                    </ul>
+            `;
+        }
 
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
@@ -89,6 +95,7 @@ export default class SelectionTreeChart {
         vis.chart.selectAll('g')
             .data(vis.root.descendants())
             .join('g')
+            .classed('node', true)
             .attr('transform', d => {
                 return `translate(${d.y}, ${d.x})`
             })
@@ -97,10 +104,25 @@ export default class SelectionTreeChart {
                 .style("fill", "#69b3a2")
                 .attr("stroke", "black")
                 .style("stroke-width", 2);
+
+        vis.chart.selectAll('.node')
+            .on('mouseover', function(event, d) {
+                const track = d.data.track;
+                console.log('hovered');
+                console.log(track);
+                d3.select('#selectionTreeTooltip')
+                    .style('display', 'block')
+                    .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
+                    .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                    .html(getTooltipContent(track));
+            })
+            .on('mouseleave',function(event, d) {
+                d3.select(this).classed('hover', false);
+                d3.select('#selectionTreeTooltip').style('display', 'none');
+            })
+
     }
-
 }
-
 
 // const formatDuration = (duration_ms) => {
 //     let seconds = Math.floor((duration_ms / 1000) % 60);

@@ -35,9 +35,7 @@ export default function SelectionTreeView() {
 
     useEffect(() => {
         const tree = {track: initialSong, children: []};
-        console.log(tree);
         selectionTreeChart.data = tree;
-        console.log("root selected");
         selectionTreeChart.updateVis();
     }, [initialSong]);
 
@@ -45,6 +43,7 @@ export default function SelectionTreeView() {
         <div>
             <SelectionTreeSearchBar setInitialSong={setInitialSong} />
             <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
+            <div id="selectionTreeTooltip" className="selection-tree-tooltip"/>
         </div>
     );
 }
