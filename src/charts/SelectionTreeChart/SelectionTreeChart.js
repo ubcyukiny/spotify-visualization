@@ -7,7 +7,7 @@ export default class SelectionTreeChart {
    * @param {Object}
    * @param {Array}
    */
-    constructor(_config, _data) {
+    constructor(_config, _data, _getRecommendations) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 1000,
@@ -18,7 +18,7 @@ export default class SelectionTreeChart {
             labelFactor: _config.labelFactor || 1.3,
         };
         this.data = _data;
-        console.log(this.data);
+        this.getRecommedations = _getRecommendations;
         this.initVis();
     }
 
@@ -56,7 +56,7 @@ export default class SelectionTreeChart {
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
         console.log("selection chart");
-        console.log(vis.data);
+        console.log(vis.root);
 
         this.renderVis();
     }
@@ -65,7 +65,7 @@ export default class SelectionTreeChart {
         const vis = this;
 
         const getTooltipContent = (track) => {
-            return `<div class="track-name">${track.trackName}</div>
+            return `<div class="track-name">${track.name}</div>
                     <div>${track.artists[0]}</div>
                     <ul>
                         <li>Danceability: ${track.danceability}</li>
@@ -107,9 +107,9 @@ export default class SelectionTreeChart {
 
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
+                console.log('hover');
+                console.log(d);
                 const track = d.data.track;
-                console.log('hovered');
-                console.log(track);
                 d3.select('#selectionTreeTooltip')
                     .style('display', 'block')
                     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
@@ -120,7 +120,12 @@ export default class SelectionTreeChart {
                 d3.select(this).classed('hover', false);
                 d3.select('#selectionTreeTooltip').style('display', 'none');
             })
-
+            .on('click', function (event, d) {
+                const track = d.data.track;
+                // vis.setSelectedNode(track);
+                // console.log("chart");
+                vis.getRecommedations(d.data);
+            });
     }
 }
 

@@ -41,7 +41,8 @@ export default function SelectionTreeSearchBar({ setInitialSong }){
                 }
             );
             const artists = track.artists.map((artist) => artist.name);
-            const rootTrack = {trackName: track.name, artists: artists, ...response.data.audio_features[0]};
+            const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
+            console.log(rootTrack);
             setInitialSong(rootTrack);
 
         } catch (error) {

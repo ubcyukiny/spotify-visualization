@@ -6,9 +6,9 @@ import axios from "axios";
 const SpotifyLogin = () => {
     const { spotifyAccessToken, updateCredentials } = useSpotifyAuth();
     const client_id = process.env.REACT_APP_CLIENT_ID; // Replace with your client id
-    console.log(client_id);
+    // console.log(client_id);
     const client_secret = process.env.REACT_APP_CLIENT_SECRET; // Replace with your client secret
-    console.log(client_secret);
+    // console.log(client_secret);
     const redirect_uri = "http://localhost:3000/callback"; // Replace with your redirect uri
 
     const generateRandomString = (length) => {
@@ -25,9 +25,9 @@ const SpotifyLogin = () => {
         const state = params.get("state");
         const storedState = localStorage.getItem("spotify_auth_state");
 
-        console.log("Code from URL:", code);
-        console.log("State from URL:", state);
-        console.log("Stored state:", storedState);
+        // console.log("Code from URL:", code);
+        // console.log("State from URL:", state);
+        // console.log("Stored state:", storedState);
 
         if (code && state && state === storedState) {
             handleCallback(code, state);
