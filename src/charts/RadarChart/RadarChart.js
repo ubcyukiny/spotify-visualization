@@ -61,7 +61,8 @@ export default class RadarChart {
                 "acousticness",
                 "liveness",
             ])
-            .domain([0, 8]);
+            .domain([0, 7]);
+
         vis.axisScale = d3
             .scaleOrdinal()
             .range(d3.range(vis.numAxes))
