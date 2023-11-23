@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import SearchBar from "./components/SeachBar/SearchBar";
 import RadarChartView from "./views/RadarChartView";
@@ -9,6 +8,8 @@ import SelectedSongsList from "./components/SelectedSongsList/SelectedSongsList"
 import HeatMapView from "./views/HeatMapView";
 import BoxPlotView from "./views/BoxPlotView"
 
+import SelectionTreeView from "./views/SelectionTreeView";
+// import SelectionTree from "./components/SelectionTree/SelectionTree";
 
 function App() {
   return (
@@ -19,7 +20,8 @@ function App() {
             <SpotifyLogin />
             <SearchBar />
             <RadarChartView />
-            <SelectedSongsList/>
+            <SelectedSongsList />
+            <SelectionTreeView />
             <HeatMapView/>
             <BoxPlotView/>
           </header>
