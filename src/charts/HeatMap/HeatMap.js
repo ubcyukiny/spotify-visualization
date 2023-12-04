@@ -268,7 +268,7 @@ export default class HeatMap {
             .selectAll('text')
             .data(vis.data)
             .attr('url', d => d.external_urls.spotify)
-            .attr('x', -vis.config.margin.left + vis.yScale.bandwidth() * 4)
+            .attr('x', -vis.config.margin.left + vis.yScale.bandwidth() * 3.5)
             .style(`text-anchor`, `start`)
             .style('cursor', 'pointer')
             .on('click', function (event, d) {
@@ -282,7 +282,6 @@ export default class HeatMap {
                 d3.select(this).style('text-decoration', 'none');
             })
 
-        // TODO: render + buttons, that changes to - if clicked, TODO: Add on click functionality...
         vis.buttons = vis.yAxisG
             .selectAll('.tick')
             .data(vis.data)

@@ -10,6 +10,7 @@ const SelectedSongsList = () => {
       <div className="selected-songs-header">
         <div className="selected-title">Selected Songs</div>
         {appMode === "track" && <div>{selectedSongs.length}/10</div>}
+        {appMode === "playlist" && <div>{selectedSongs.length}/10</div>}
       </div>
       <div className="selected-songs-result-container">
         {selectedSongs.map((song) => (

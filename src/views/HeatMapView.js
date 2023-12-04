@@ -3,7 +3,6 @@ import { useRef } from "react";
 import HeatMap from "../charts/HeatMap/HeatMap";
 import { useSpotifyAuth } from "../context/SpotifyAuthContext";
 import axios from "axios";
-import PlaylistLinkBox from "../components/PlaylistLinkBox/PlaylistLinkBox";
 import { SelectedSongsContext } from "../context/SelectedSongsContext";
 
 
@@ -16,31 +15,30 @@ const HeatMapView = () => {
   const [tracks, setTracks] = useState(null);
   const [trackIds, setTrackIds] = useState('');
   const [trackAudioFeatures, setTrackAudioFeatures] = useState(null);
-  const { addSong, removeSong, selectedSongs } = useContext(SelectedSongsContext);
+  const { addSong, removeSong, selectedSongs, selectedPlaylistId} = useContext(SelectedSongsContext);
   const numSongsToDisplay = 10;
 
-  // shared state
-  const [playlistID, setPlaylistID] = useState("37i9dQZF1DXcBWIGoYBM5M"); // id for Spotify's Today's Top Hits, default playlist for heatmap
-  const updatePlaylistID = (newValue) => {
-    setPlaylistID(newValue);
-  };
+  // use selectedPlaylistId from selectedSongsContext, if nothing is selected use default Today's Top Hits
+  const [playlistID, setPlaylistID] = useState(selectedPlaylistId ? selectedPlaylistId : "37i9dQZF1DXcBWIGoYBM5M"); // id for Spotify's Today's Top Hits, default playlist for heatmap
 
-  // TODO: alert does not pop up
   const handleHeatmapButtonClick = (trackData, currentText) => {
     if (currentText === '+') {
-      if (selectedSongs.length >= 10) {
-        alert("You have already selected 10 songs");
-        return '+';
-      } else {
+      // '+' is clicked, when playlist is full button is not clickable
         addSong(trackData);
         return '-';
-      }
     } else {
       // '-' is clicked
       removeSong(trackData.id);
       return '+';
     }
   }
+
+    // listen to selectedPlaylistId
+    useEffect (() => {
+      if (selectedPlaylistId) {
+        setPlaylistID(selectedPlaylistId);
+      }
+    }, [selectedPlaylistId])
 
   // Keep track of selectedSongs, update buttons in heatmap according to it
   useEffect(() => {
@@ -54,7 +52,7 @@ const HeatMapView = () => {
     setHeatMap(heatMap);
   }, []);
 
-  // if logged in or playlistID changes, TODO: remove, clean up commented codes fields to match selectSongs
+  // if logged in or playlistID changes
   useEffect(() => {
     if (accessToken && playlistID && heatMap) {
       const fetchData = async () => {
@@ -153,7 +151,6 @@ const HeatMapView = () => {
 
   return (
     <div className="heatmap-flex-container">
-      <PlaylistLinkBox updatePlaylistID={updatePlaylistID} />
       <svg ref={heatMapRef} id="heatmap"></svg>
       <div id="heatmap-tooltip" />
     </div>
