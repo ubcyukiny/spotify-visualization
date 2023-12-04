@@ -28,7 +28,7 @@ export default class HeatMap {
             playlistID: playlist.playlistID,
             playlistTitle: playlist.playlistTitle,
             playlistImageUrl: playlist.playlistImageUrl,
-            playlistURL: `https://open.spotify.com/playlist/${playlist.playlistID}`,
+            playlistUrl: `https://open.spotify.com/playlist/${playlist.playlistID}`,
             playlistDescription: playlist.playlistDescription
         }
         this.colorScaleCategories = [
@@ -199,7 +199,7 @@ export default class HeatMap {
             .style('fill', "white")
             .style('cursor', 'pointer')
             .on('click', function (event, d) {
-                window.open(vis.playlist.playlistURL, '_blank');
+                window.open(vis.playlist.playlistUrl, '_blank');
             })
             .on('mouseover', function () {
                 d3.select(this).style('text-decoration', 'underline');
