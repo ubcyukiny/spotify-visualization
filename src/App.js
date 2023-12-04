@@ -21,8 +21,8 @@ function App() {
             <SearchBar />
             <RadarChartView />
             <SelectedSongsList />
-            <SelectionTreeView />
             <HeatMapView/>
+            <SelectionTreeView />
             <BoxPlotView/>
           </header>
         </div>

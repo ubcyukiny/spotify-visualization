@@ -2,6 +2,12 @@
     font-size: 18px;
 }
 
+.heatmap-selectsongs-button {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+  }
 
 /* Tooltip */
 #heatmap-tooltip {
