@@ -126,9 +126,18 @@ const ArtistScroll = ({ artists }) => {
       console.log(rowArtists);
       return (
         <div className={`scroll-row row${rowIndex + 1}`} key={rowIndex}>
-          {rowArtists.map((artist, index) => (
-            <span key={index}>{artist.toUpperCase()}</span>
-          ))}
+          {rowArtists.map((artist, index, array) => {
+            const nameParts = artist.split(" ");
+            return nameParts.map((part, partIndex) => (
+              <React.Fragment key={`${index}-${partIndex}`}>
+                <span className="artist-name-part">{part.toUpperCase()}</span>
+                {partIndex === nameParts.length - 1 &&
+                  index !== array.length - 1 && (
+                    <span className="artist-separator" />
+                  )}
+              </React.Fragment>
+            ));
+          })}
         </div>
       );
     });
@@ -213,6 +222,9 @@ const SpotifyLogin = () => {
 
     return (
       <div className="login-container">
+        <div className="left-bar">
+          <div className="top-label">G18</div>
+        </div>
         {spotifyAccessToken ? (
           <p>Logged in!</p>
         ) : (
@@ -220,7 +232,7 @@ const SpotifyLogin = () => {
             Login Using Spotify
           </button>
         )}
-        <ArtistScroll artists={artists} />  
+        <ArtistScroll artists={artists} />
       </div>
     );
 };
