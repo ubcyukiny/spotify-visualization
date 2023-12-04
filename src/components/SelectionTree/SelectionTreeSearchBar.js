@@ -27,28 +27,30 @@ export default function SelectionTreeSearchBar({ setInitialSong }){
         }
     };
 
-    const fetchTrackFeatures = async (track) => {
-        try {
-            const response = await axios.get(
-                `https://api.spotify.com/v1/audio-features`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    params: {
-                        ids: track.id,
-                    },
-                }
-            );
-            const artists = track.artists.map((artist) => artist.name);
-            const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
-            console.log(rootTrack);
-            setInitialSong(rootTrack);
+    // const fetchTrackFeatures = async (track) => {
+    //     try {
+    //         const response = await axios.get(
+    //             `https://api.spotify.com/v1/audio-features`,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${accessToken}`,
+    //                 },
+    //                 params: {
+    //                     ids: track.id,
+    //                 },
+    //             }
+    //         );
+    //         console.log("response");
+    //         console.log(response);
+    //         const artists = track.artists.map((artist) => artist.name);
+    //         const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
+    //         console.log(rootTrack);
+    //         setInitialSong(rootTrack);
 
-        } catch (error) {
-            console.error("Error fetching track features", error);
-        }
-    };
+    //     } catch (error) {
+    //         console.error("Error fetching track features", error);
+    //     }
+    // };
 
     return (
         <div className="search-container">
@@ -73,7 +75,7 @@ export default function SelectionTreeSearchBar({ setInitialSong }){
                         <span className="track-info">
                             {track.name} by {track.artists[0].name}
                         </span>
-                        <button className="select-button" onClick={() => fetchTrackFeatures(track)} > Select </button>
+                        <button className="select-button" onClick={() => setInitialSong(track)} > Select </button>
                     </div>
                 ))}
             </div>

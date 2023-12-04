@@ -97,18 +97,19 @@ export default class SelectionTreeChart {
             .join('g')
             .classed('node', true)
             .attr('transform', d => {
+                console.log(d);
                 return `translate(${d.y}, ${d.x})`
             })
-            .append('circle')
-                .attr('r', 7)
-                .style("fill", "#69b3a2")
-                .attr("stroke", "black")
-                .style("stroke-width", 2);
+            .append('image')
+                .attr('xlink:href', d => d.data.track.albumCover)
+                .attr('width', 50)
+                .attr('height', 50)
+                .attr('transform', 'translate(-25, -25)');
 
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
-                console.log('hover');
-                console.log(d);
+                // console.log('hover');
+                // console.log(d);
                 const track = d.data.track;
                 d3.select('#selectionTreeTooltip')
                     .style('display', 'block')
