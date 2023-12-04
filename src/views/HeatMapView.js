@@ -136,12 +136,11 @@ const HeatMapView = () => {
 
   useEffect(() => {
     if (!data) return;
-
     heatMap.data = data;
     heatMap.updateVis();
+    heatMap.updateButtonStates(selectedSongs); // also check if playlist is full already
   }, [data]);
 
-  // TODO: allignment on playlist link box
   return (
     <div className="heatmap-flex-container">
       <PlaylistLinkBox updatePlaylistID={updatePlaylistID} />

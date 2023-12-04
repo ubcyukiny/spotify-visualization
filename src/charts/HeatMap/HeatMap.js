@@ -364,7 +364,7 @@ export default class HeatMap {
                     return d3.select(this).text() === '+';
                 })
                 plusButtons
-                    .attr('title', 'The playlist is full')
+                    .style('cursor','not-allowed')
                     .style('fill', '#6c757d');
             }
         }
