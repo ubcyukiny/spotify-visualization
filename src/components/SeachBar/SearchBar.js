@@ -8,12 +8,20 @@ const SearchBar = () => {
   const { spotifyAccessToken } = useSpotifyAuth();
   const accessToken = spotifyAccessToken;
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
+  const [trackResults, setTrackResults] = useState([]);
+  const [playlistResults, setPlaylistResults] = useState([]);
   const [selectedTrackFeatures, setSelectedTrackFeatures] = useState(null);
-  const { addSong, selectedSongs } = useContext(SelectedSongsContext);
+  const {
+    selectedSongs,
+    selectedPlaylistId,
+    addSong,
+    setPlaylistId,
+  } = useContext(SelectedSongsContext);
+  const [searchMode, setSearchMode] = useState("track"); // track or playlist
 
   const handleSearch = async () => {
     try {
+      if(searchMode === "track") {
       const response = await axios.get("https://api.spotify.com/v1/search", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -21,11 +29,25 @@ const SearchBar = () => {
         params: {
           q: query,
           type: "track", 
-          limit: 10,
+          limit: 50,
         },
       });
-      setResults(response.data.tracks.items); 
-      console.log(response.data);
+      setTrackResults(response.data.tracks.items); }
+      else {
+        const response = await axios.get("https://api.spotify.com/v1/search", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          q: query,
+          type: "playlist", 
+          limit: 50,
+        }
+      });
+      console.log(response.data.playlists.items);
+      setPlaylistResults(response.data.playlists.items);
+      }
+
     } catch (error) {
       console.error("Error during Spotify search", error);
     }
@@ -44,7 +66,6 @@ const SearchBar = () => {
             Authorization: `Bearer ${accessToken}`,
           },
           params: {
-            // multiple track ids can be passed in separated by commas
             ids: track.id,
           },
         }
@@ -56,38 +77,81 @@ const SearchBar = () => {
     }
   };
 
+   const selectMode = (mode) => {
+     setSearchMode(mode);
+   };
+
   return (
     <div className="search-container">
-      <input
-        type="text"
-        className="search-input"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search for a song"
-      />
-      <button className="search-button" onClick={handleSearch}>
-        Search
-      </button>
+      <div className="selection-mode-container">
+        <button
+          className={`track-mode-button ${
+            searchMode === "track" ? "selected" : ""
+          }`}
+          onClick={() => selectMode("track")}
+        >
+          Track
+        </button>
+        <button
+          className={`playlist-mode-button ${
+            searchMode === "playlist" ? "selected" : ""
+          }`}
+          onClick={() => selectMode("playlist")}
+        >
+          PlayList
+        </button>
+      </div>
+      <div className="searchbar-container">
+        <input
+          type="text"
+          className="search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search for a ${searchMode}`}
+        />
+        <button className="search-button" onClick={handleSearch}>
+          Search
+        </button>
+      </div>
+
       <div className="results-container">
-        {results.map((track) => (
-          <div className="track-item" key={track.id}>
-            <img
-              className="album-cover"
-              src={track.album.images[0].url}
-              alt="Album Cover"
-            />
-            <span className="track-info">
-              {track.name} by {track.artists[0].name}
-            </span>
-            <button
-              className="select-button"
-              disabled={selectedSongs.some((song) => song.id === track.id)}
-              onClick={() => fetchTrackFeatures(track)}
-            >
-              Select
-            </button>
-          </div>
-        ))}
+        {searchMode === "track"
+          ? trackResults.map((track) => (
+              <div className="track-item" key={track.id}>
+                <img
+                  className="album-cover"
+                  src={track.album.images[0].url}
+                  alt="Track Cover"
+                />
+                <span className="track-info">
+                  {track.name} by {track.artists[0].name}
+                </span>
+                <button
+                  className="select-button"
+                  disabled={selectedSongs.some((song) => song.id === track.id)}
+                  onClick={() => fetchTrackFeatures(track)}
+                >
+                  Select
+                </button>
+              </div>
+            ))
+          : playlistResults.map((playlist) => (
+              <div className="track-item" key={playlist.id}>
+                <img
+                  className="album-cover"
+                  src={playlist.images[0]?.url || ""}
+                  alt="PlayList Cover"
+                />
+                <span className="track-info">{playlist.name}</span>
+                <button
+                  className="select-button"
+                  onClick={() => setPlaylistId(playlist.id)}
+                  disabled={selectedPlaylistId === playlist.id}
+                >
+                  Select
+                </button>
+              </div>
+            ))}
       </div>
     </div>
   );

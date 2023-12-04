@@ -1,17 +1,15 @@
-
 .login-container {
   height: 100vh;
-  width: 100vw; 
+  width: 100vw;
   display: flex;
-    flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(270deg, #121212, #1f1f1f, #121212);
-
-  animation: AnimationName 15s ease infinite;
+  background: linear-gradient(270deg, #090979, #020024);
+  background-size: 600% 600%;
+  animation: Animation 30s ease infinite;
 }
 
-@keyframes AnimationName {
+@keyframes Animation {
   0% {
     background-position: 0% 50%;
   }
@@ -24,12 +22,12 @@
 }
 
 .title {
-    font-family: "Roboto", sans-serif;
-    font-size: 3em;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 0.5em;
-    z-index: 1;
+  font-family: "Roboto", sans-serif;
+  font-size: 3em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.5em;
+  z-index: 1;
 }
 
 .spotify-btn {
@@ -51,46 +49,45 @@
   background-color: #1ed760;
 }
 
-
 .scrolling-artist-names {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: fit-content;
-    overflow: hidden;
-    white-space: nowrap;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: fit-content;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .scroll-row {
-    white-space: nowrap;    
-    display: flex;
-    animation: infiniteScroll 150s linear infinite;
-    font-weight: bold;
-    color:rgb(179, 179, 179, 0.5);
-    font-size: 150px;   
-    width: fit-content;
-    text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+  animation: infiniteScroll 150s linear infinite;
+  font-weight: bold;
+  color: rgb(179, 179, 179, 0.5);
+  font-size: 120px;
+  width: fit-content;
+  text-transform: uppercase;
 }
 
-.scroll-row span{
-    margin-left: 1rem;
-    display: inline-block;
+.scroll-row span {
+  margin-left: 1rem;
+  display: inline-block;
 }
 
 .row1 {
-    animation-duration: 55s; 
+  animation-duration: 55s;
 }
 .row2 {
-    animation-duration: 30s; 
+  animation-duration: 30s;
 }
 .row3 {
-    animation-duration: 20s; 
+  animation-duration: 20s;
 }
 .row4 {
-    animation-duration: 30s; 
+  animation-duration: 30s;
 }
-.row5    {
-    animation-duration: 55s; 
+.row5 {
+  animation-duration: 55s;
 }
 
 @keyframes infiniteScroll {

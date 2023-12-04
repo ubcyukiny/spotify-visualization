@@ -8,7 +8,7 @@ import HeatMapView from "./views/HeatMapView";
 import BoxPlotView from "./views/BoxPlotView"
 import SpotifyLogin from "./components/SpotifyLogin/SpotifyLogin";
 import SelectionTreeView from "./views/SelectionTreeView";
-import GeneralView from "./views/GeneralView";
+import GeneralView from "./views/GeneralView/GeneralView";
 // import SelectionTree from "./components/SelectionTree/SelectionTree";
 
 function App() {
@@ -16,9 +16,9 @@ function App() {
     <SpotifyAuthProvider>
       <SelectedSongsProvider>
         <div className="App">
-          <header className="App-header">
+          <div className="body">
             <GeneralView />
-          </header>
+          </div>
         </div>
       </SelectedSongsProvider>
     </SpotifyAuthProvider>

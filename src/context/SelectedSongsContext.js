@@ -4,6 +4,7 @@ export const SelectedSongsContext = createContext();
 
 export const SelectedSongsProvider = ({ children }) => {
   const [selectedSongs, setSelectedSongs] = useState([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
 
   // const addSong = (song) => {
   //   setSelectedSongs([...selectedSongs, song]);
@@ -33,9 +34,17 @@ export const SelectedSongsProvider = ({ children }) => {
     );
   };
 
+  const setPlaylistId = (playlistId) => {
+    setSelectedPlaylistId(playlistId);
+  }
+
+  const removePlaylistId = () => {
+    setSelectedPlaylistId(null);
+  }
+
   return (
     <SelectedSongsContext.Provider
-      value={{ selectedSongs, addSong, removeSong }}
+      value={{ selectedSongs, selectedPlaylistId, addSong, removeSong, setPlaylistId, removePlaylistId }}
     >
       {children}
     </SelectedSongsContext.Provider>

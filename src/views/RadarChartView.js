@@ -56,7 +56,6 @@ const RadarChartView = () => {
     const newSongData = selectedSongs.map((song) => {
       return buildSongData(song);
     });
-    // console.log(newSongData);
     setSongData(newSongData);
   }, [selectedSongs]);
 
@@ -83,8 +82,6 @@ const RadarChartView = () => {
 //           ]
 //         }]
 
-  
-  useEffect(() => {}, []);
 
   return (
     <div>
