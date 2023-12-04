@@ -3,13 +3,13 @@ import { SelectedSongsContext } from "../../context/SelectedSongsContext";
 import "./style.css";
 
 const SelectedSongsList = () => {
-  const { selectedSongs, removeSong } = useContext(SelectedSongsContext);
+  const { selectedSongs, removeSong, appMode } = useContext(SelectedSongsContext);
 
   return (
     <div className="selected-songs-container">
       <div className="selected-songs-header">
         <div className="selected-title">Selected Songs</div>
-        <div>{selectedSongs.length}/10</div>
+        {appMode === "track" && <div>{selectedSongs.length}/10</div>}
       </div>
       <div className="selected-songs-result-container">
         {selectedSongs.map((song) => (

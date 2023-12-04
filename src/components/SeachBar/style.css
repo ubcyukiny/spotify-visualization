@@ -14,27 +14,6 @@
   gap: 8px;
 }
 
-.track-mode-button,
-.playlist-mode-button {
-  background-color: transparent;
-  font-weight: bold;
-  padding: 8px;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.track-mode-button:hover,
-.playlist-mode-button:hover{
-  background-color: #27272a;
-}
-
-.track-mode-button.selected,
-.playlist-mode-button.selected {
-  background-color: #1db954;
-}
-
 .searchbar-container {
   margin-top: 10px;
   display: flex;
@@ -70,7 +49,6 @@
 
 .results-container {
   margin-top: 15px;
-  font-size: 12px;
   width: 100%;
   max-height: 200px;
   overflow-y: auto;

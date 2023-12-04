@@ -16,12 +16,13 @@ const SearchBar = () => {
     selectedPlaylistId,
     addSong,
     setPlaylistId,
+    appMode,
+    setAppMode
   } = useContext(SelectedSongsContext);
-  const [searchMode, setSearchMode] = useState("track"); // track or playlist
 
   const handleSearch = async () => {
     try {
-      if(searchMode === "track") {
+      if(appMode === "track") {
       const response = await axios.get("https://api.spotify.com/v1/search", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -44,12 +45,12 @@ const SearchBar = () => {
           limit: 50,
         }
       });
-      console.log(response.data.playlists.items);
       setPlaylistResults(response.data.playlists.items);
       }
 
     } catch (error) {
       console.error("Error during Spotify search", error);
+      alert(error.response.data.error.message)
     }
   };
 
@@ -78,23 +79,23 @@ const SearchBar = () => {
   };
 
    const selectMode = (mode) => {
-     setSearchMode(mode);
+     setAppMode(mode);
    };
 
   return (
     <div className="search-container">
       <div className="selection-mode-container">
         <button
-          className={`track-mode-button ${
-            searchMode === "track" ? "selected" : ""
+          className={`mode-button ${
+            appMode === "track" ? "selected" : ""
           }`}
           onClick={() => selectMode("track")}
         >
           Track
         </button>
         <button
-          className={`playlist-mode-button ${
-            searchMode === "playlist" ? "selected" : ""
+          className={`mode-button ${
+            appMode === "playlist" ? "selected" : ""
           }`}
           onClick={() => selectMode("playlist")}
         >
@@ -107,7 +108,7 @@ const SearchBar = () => {
           className="search-input"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search for a ${searchMode}`}
+          placeholder={`Search for a ${appMode}`}
         />
         <button className="search-button" onClick={handleSearch}>
           Search
@@ -115,7 +116,10 @@ const SearchBar = () => {
       </div>
 
       <div className="results-container">
-        {searchMode === "track"
+        {trackResults.length === 0 && appMode === "track" || playlistResults.length === 0 && appMode === "playlist" ? (
+          <div className="no-results">{`Search a ${appMode} to start`}</div>
+        ) : null}
+        {appMode === "track"
           ? trackResults.map((track) => (
               <div className="track-item" key={track.id}>
                 <img

@@ -113,7 +113,7 @@ const artists = [
 
 
 const ArtistScroll = ({ artists }) => {
-  const numberOfRows = 10;
+  const numberOfRows = 6;
   const artistsPerRow = Math.ceil(artists.length / numberOfRows);
 
   const rows = Array(numberOfRows)
@@ -228,9 +228,11 @@ const SpotifyLogin = () => {
         {spotifyAccessToken ? (
           <p>Logged in!</p>
         ) : (
-          <button onClick={handleLogin} className="spotify-btn">
-            Login Using Spotify
-          </button>
+          <div className="login-button-container">
+             <button onClick={handleLogin} className="spotify-btn">
+              Login with Spotify
+            </button>
+          </div>
         )}
         <ArtistScroll artists={artists} />
       </div>
