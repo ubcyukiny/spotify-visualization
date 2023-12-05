@@ -40,6 +40,8 @@ export default class SelectionTreeChart {
             .attr("width", vis.config.containerWidth)
             .attr("height", vis.config.containerHeight);
 
+        console.log("init vis called");
+
         vis.chart = vis.svg
             .append("g")
             .attr(
@@ -80,6 +82,9 @@ export default class SelectionTreeChart {
             `;
         }
 
+        console.log("root");
+        console.log (vis.root.descendants());
+
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
             .join('path')
@@ -90,26 +95,26 @@ export default class SelectionTreeChart {
                         + " " + d.parent.y + "," + d.parent.x;
               })
             .style('fill', 'none')
-            .attr('stroke', '#ccc');
+            .attr('stroke', (d) => {
+                if (d.data.selected)
+                    return "#aa4a44";
+                return "#ccc";
+            });
 
-        vis.chart.selectAll('g')
-            .data(vis.root.descendants())
-            .join('g')
+        vis.chart.selectAll('image')
+            .data(vis.root.descendants(), d => d.data.track.id)
+            .join('image')
             .classed('node', true)
             .attr('transform', d => {
-                console.log(d);
-                return `translate(${d.y}, ${d.x})`
+                return `translate(${d.y - 25}, ${d.x - 25})`
             })
-            .append('image')
-                .attr('xlink:href', d => d.data.track.albumCover)
-                .attr('width', 50)
-                .attr('height', 50)
-                .attr('transform', 'translate(-25, -25)');
+            .attr('xlink:href', d => d.data.track.albumCover)
+            .attr('width', 50)
+            .attr('height', 50);
+            
 
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
-                // console.log('hover');
-                // console.log(d);
                 const track = d.data.track;
                 d3.select('#selectionTreeTooltip')
                     .style('display', 'block')
@@ -123,8 +128,7 @@ export default class SelectionTreeChart {
             })
             .on('click', function (event, d) {
                 const track = d.data.track;
-                // vis.setSelectedNode(track);
-                // console.log("chart");
+                d.data.selected = true;
                 vis.getRecommedations(d.data);
             });
     }

@@ -17,7 +17,7 @@ export default function SelectionTreeSearchBar({ setInitialSong }){
                 },
                 params: {
                     q: query,
-                    type: "track", 
+                    type: "track",
                     limit: 10,
                 },
             });
@@ -26,31 +26,6 @@ export default function SelectionTreeSearchBar({ setInitialSong }){
             console.error("Error during Spotify search", error);
         }
     };
-
-    // const fetchTrackFeatures = async (track) => {
-    //     try {
-    //         const response = await axios.get(
-    //             `https://api.spotify.com/v1/audio-features`,
-    //             {
-    //                 headers: {
-    //                     Authorization: `Bearer ${accessToken}`,
-    //                 },
-    //                 params: {
-    //                     ids: track.id,
-    //                 },
-    //             }
-    //         );
-    //         console.log("response");
-    //         console.log(response);
-    //         const artists = track.artists.map((artist) => artist.name);
-    //         const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
-    //         console.log(rootTrack);
-    //         setInitialSong(rootTrack);
-
-    //     } catch (error) {
-    //         console.error("Error fetching track features", error);
-    //     }
-    // };
 
     return (
         <div className="search-container">

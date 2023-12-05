@@ -7,138 +7,67 @@ import { useSpotifyAuth } from "../context/SpotifyAuthContext";
 export default function SelectionTreeView() {
     const { spotifyAccessToken } = useSpotifyAuth();
     const accessToken = spotifyAccessToken;
-
-    const sample = {
-        name:"CEO",
-        children:[{
-            name:"boss1",
-            colname:"level2",
-            children:[
-                {name:"mister_a",colname:"level3"},
-                {name:"mister_b",colname:"level3"},
-                {name:"mister_c",colname:"level3"},
-                {name:"mister_d",colname:"level3"}
-            ]}, {
-                name:"boss2",
-                colname:"level2",
-                children:[
-                    {name:"mister_e",colname:"level3"},
-                    {name:"mister_f",colname:"level3"},
-                    {name:"mister_g",colname:"level3"},
-                    {name:"mister_h",colname:"level3"}
-                ]}]
-    };
-
-    const sampleTracks = [
-        {
-            track: {
-                "name": "Faith",
-                "id": "59eAcAyhYSLi5GKFrgHJzG",
-                "artists": [
-                    "George Michael"
-                ],
-                "danceability": 0.915,
-                "energy": 0.497,
-                "key": 11,
-                "loudness": -10.435,
-                "mode": 1,
-                "speechiness": 0.102,
-                "acousticness": 0.00547,
-                "instrumentalness": 0.000108,
-                "liveness": 0.067,
-                "valence": 0.553,
-                "tempo": 95.852,
-                "type": "audio_features",
-                "uri": "spotify:track:59eAcAyhYSLi5GKFrgHJzG",
-                "track_href": "https://api.spotify.com/v1/tracks/59eAcAyhYSLi5GKFrgHJzG",
-                "analysis_url": "https://api.spotify.com/v1/audio-analysis/59eAcAyhYSLi5GKFrgHJzG",
-                "duration_ms": 194493,
-                "time_signature": 4
-            }
-        },
-        {
-            track: {
-                "name": "anjoom",
-                "id": "59eAcAyhYSLi5GKFrgHJzG",
-                "artists": [
-                    "George Michael"
-                ],
-                "danceability": 0.915,
-                "energy": 0.497,
-                "key": 11,
-                "loudness": -10.435,
-                "mode": 1,
-                "speechiness": 0.102,
-                "acousticness": 0.00547,
-                "instrumentalness": 0.000108,
-                "liveness": 0.067,
-                "valence": 0.553,
-                "tempo": 95.852,
-                "type": "audio_features",
-                "uri": "spotify:track:59eAcAyhYSLi5GKFrgHJzG",
-                "track_href": "https://api.spotify.com/v1/tracks/59eAcAyhYSLi5GKFrgHJzG",
-                "analysis_url": "https://api.spotify.com/v1/audio-analysis/59eAcAyhYSLi5GKFrgHJzG",
-                "duration_ms": 194493,
-                "time_signature": 4
-            }
-        },
-        {
-            track: {
-                "name": "samia",
-                "id": "59eAcAyhYSLi5GKFrgHJzG",
-                "artists": [
-                    "George Michael"
-                ],
-                "danceability": 0.915,
-                "energy": 0.497,
-                "key": 11,
-                "loudness": -10.435,
-                "mode": 1,
-                "speechiness": 0.102,
-                "acousticness": 0.00547,
-                "instrumentalness": 0.000108,
-                "liveness": 0.067,
-                "valence": 0.553,
-                "tempo": 95.852,
-                "type": "audio_features",
-                "uri": "spotify:track:59eAcAyhYSLi5GKFrgHJzG",
-                "track_href": "https://api.spotify.com/v1/tracks/59eAcAyhYSLi5GKFrgHJzG",
-                "analysis_url": "https://api.spotify.com/v1/audio-analysis/59eAcAyhYSLi5GKFrgHJzG",
-                "duration_ms": 194493,
-                "time_signature": 4
-            }
-        }
-    ];
-
     const selectionTreeChartRef = useRef(null);
-    const [initialSong, setInitialSong] = useState(null);
-    const [tree, setTree] = useState(sample);
-    const [recommedations, setRecommedations] = useState(null);
 
-    // const getRecommendations = async (node) => {
-    const getRecommendations = (node) => {
+    const getRecommendations = async (node) => {
+        
+        const numChildren = 2;
         try {
-            const response = JSON.parse(JSON.stringify(sampleTracks));
-            // const response = await axios.get(
-            //     'https://api.spotify.com/v1/recommendations',
-            //     {
-            //         headers: {
-            //             Authorization: `Bearer ${accessToken}`,
-            //         },
-            //         params: {
-            //             seed_tracks: node.track.id
-            //         }
-            //     });
-            // console.log(response.data.tracks.slice(2));
-            // setRecommedations(response.data.tracks);
-            // track.children = response;
-            // setRecommedations(response);
-            node.children = response;
-            // console.log('new node');
-            // console.log(node);
-            selectionTreeChart.updateVis(); 
-            return response;
+            const response = await axios.get(
+                'https://api.spotify.com/v1/recommendations',
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    params: {
+                        seed_tracks: node.track.id
+                    }
+                });
+            const childrenData = response.data.tracks.slice(0, numChildren);
+            let childrenIds = "";
 
+            const childrenTracks = childrenData.map((data) => {
+                childrenIds += data.id + ",";
+                return {
+                    name: data.name,
+                    id: data.id,
+                    albumCover: data.album.images[0].url,
+                    artists: data.artists.map((artist) => artist.name),
+                    duration_ms: data.duration_ms,
+                    uri: data.uri
+                }
+            });
+            childrenIds = childrenIds.slice(0, -1);
+
+            try {
+                const response = await axios.get(
+                    `https://api.spotify.com/v1/audio-features`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        params: {
+                            ids: childrenIds
+                        }
+                    }
+                );
+
+                const childrenFeatures = response.data.audio_features.map((track, index) => {
+                    return {
+                        track: {
+                            ...childrenTracks[index],
+                            ...track
+                        },
+                        selected: false,
+                        children:[]
+                    }
+                });
+
+                node.children = childrenFeatures;
+                selectionTreeChart.updateVis();
+            } catch (error) {
+                console.error("Error fetching track features", error);
+            }
         } catch(error) {
             console.log(error);
         }
@@ -146,38 +75,11 @@ export default function SelectionTreeView() {
 
     const selectionTreeChart = new SelectionTreeChart(
         { parentElement: selectionTreeChartRef.current },
-        tree,
+        {},
         getRecommendations
     );
 
-    const fetchTrackFeatures = async (track) => {
-        try {
-            const response = await axios.get(
-                `https://api.spotify.com/v1/audio-features`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    params: {
-                        ids: track.id,
-                    },
-                }
-            );
-            console.log("response");
-            console.log(response);
-            const artists = track.artists.map((artist) => artist.name);
-            const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
-            console.log(rootTrack);
-            setInitialSong(rootTrack);
-
-        } catch (error) {
-            console.error("Error fetching track features", error);
-        }
-    };
-
     const selectInitialSong = async (track) => {
-        // console.log("response");
-        // console.log(track);
         try {
             const response = await axios.get(
                 `https://api.spotify.com/v1/audio-features`,
@@ -190,72 +92,15 @@ export default function SelectionTreeView() {
                     },
                 }
             );
-            // console.log("response");
-            // console.log(response);
             const artists = track.artists.map((artist) => artist.name);
             const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...response.data.audio_features[0]};
-            console.log("root track");
-            console.log(rootTrack);
-            const tree = {track: rootTrack, children: []};
+            const tree = {track: rootTrack, children: [], selected: true};
             selectionTreeChart.data = tree;
             selectionTreeChart.updateVis();
-
         } catch (error) {
             console.error("Error fetching track features", error);
         }
     }
-
-    // useEffect(() => {
-    //     if (!initialSong)
-    //     return;
-
-    //     const fetchTrackFeatures = async (track) => {
-    //         try {
-    //             const response = await axios.get(
-    //                 `https://api.spotify.com/v1/audio-features`,
-    //                 {
-    //                     headers: {
-    //                         Authorization: `Bearer ${accessToken}`,
-    //                     },
-    //                     params: {
-    //                         ids: track.id,
-    //                     },
-    //                 }
-    //             );
-    //             console.log("response");
-    //             console.log(response);
-    //             const artists = track.artists.map((artist) => artist.name);
-    //             const rootTrack = {name: track.name, id: track.id, artists: artists, ...response.data.audio_features[0]};
-    //             console.log(rootTrack);
-    //             setInitialSong(rootTrack);
-
-    //         } catch (error) {
-    //             console.error("Error fetching track features", error);
-    //         }
-    //     };
-
-    //     const tree = {track: initialSong, children: []};
-    //     selectionTreeChart.data = tree;
-    //     selectionTreeChart.updateVis();
-    // }, [initialSong]);
-
-    // useEffect(() => {
-    //     if (!initialSong)
-    //         return;
-
-    //     (async () => {
-    //         const response = await getRecommendations(initialSong);
-    //         console.log(response);
-    //     })();
-
-    // }, [recommedations]);
-
-    // useEffect(() => {
-    //     if (!initialSong)
-    //         return;
-
-    //     console.log(selectedNode);
-    // }, [selectedNode]);
 
     return (
         <div>
