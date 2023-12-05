@@ -1,8 +1,9 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
 import SelectionTreeChart from "../charts/SelectionTreeChart/SelectionTreeChart";
 import SelectionTreeSearchBar from "../components/SelectionTree/SelectionTreeSearchBar";
 import axios from "axios";
 import { useSpotifyAuth } from "../context/SpotifyAuthContext";
+import { SelectedSongsContext } from "../context/SelectedSongsContext";
 
 export default function SelectionTreeView() {
     const { spotifyAccessToken } = useSpotifyAuth();
@@ -10,6 +11,14 @@ export default function SelectionTreeView() {
     const selectionTreeChartRef = useRef(null);
     const [selectionTreeChart, setSelectionTreeChart] = useState(null);
     const [selectedNode, setSelectedNode] = useState(null);
+    const {
+        selectedSongs,
+        selectedPlaylistId,
+        addSong,
+        setPlaylistId,
+        appMode,
+        setAppMode
+    } = useContext(SelectedSongsContext);
 
     const fetchAudioFeatures = async (trackIds) => {
         try {
@@ -36,6 +45,8 @@ export default function SelectionTreeView() {
 
         const getRecommendations = async (node) => {
             console.log(node);
+            console.log(node.selectionContext);
+            addSong(node.selectionContext);
             const numChildren = 2;
             try {
                 const response = await axios.get(
@@ -64,17 +75,18 @@ export default function SelectionTreeView() {
                 });
                 childrenIds = childrenIds.slice(0, -1);
                 const audioFeatures = await fetchAudioFeatures(childrenIds);
-                const childrenFeatures = audioFeatures.map((track, index) => {
+                const childrenNodes = audioFeatures.map((features, index) => {
                     return {
                         track: {
                             ...childrenTracks[index],
-                            ...track
+                            ...features,
                         },
                         selected: false,
+                        selectionContext: {...childrenData[index], features: [features]},
                         children:[]
                     }
                 });
-                node.children = childrenFeatures;
+                node.children = childrenNodes;
                 selectionTreeChart.updateVis();
             } catch(error) {
                 console.log(error);
@@ -97,8 +109,16 @@ export default function SelectionTreeView() {
     const selectInitialSong = async (track) => {
         const audioFeatures = await fetchAudioFeatures(track.id);
         const artists = track.artists.map((artist) => artist.name);
-        const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...audioFeatures[0]};
-        const tree = {track: rootTrack, children: [], selected: true};
+        const rootTrack = {
+            name: track.name,
+            albumCover: track.album.images[0].url,
+            id: track.id,
+            artists: artists,
+            ...audioFeatures[0],
+            
+        };
+        // const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...audioFeatures[0]};
+        const tree = {track: rootTrack, children: [], selected: true, selectionContext: {...track, features: [audioFeatures[0]]}};
         selectionTreeChart.data = tree;
         selectionTreeChart.updateVis();
     }

@@ -13,6 +13,8 @@ export const SelectedSongsProvider = ({ children }) => {
 
   // using functional update
   const addSong = (newSong) => {
+    console.log("added");
+    console.log(newSong);
     setSelectedSongs((prevSelectedSongs) => {
       // Check if the newSong is already in the selectedSongs list to avoid duplicates
       const isSongAlreadyAdded = prevSelectedSongs.find(
