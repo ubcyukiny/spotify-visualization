@@ -15,7 +15,9 @@ const HeatMapView = () => {
   const [tracks, setTracks] = useState(null);
   const [trackIds, setTrackIds] = useState('');
   const [trackAudioFeatures, setTrackAudioFeatures] = useState(null);
-  const { addSong, removeSong, selectedSongs, selectedPlaylistId} = useContext(SelectedSongsContext);
+  const [heatMapMode, setHeatMapMode] = useState("selectedPlaylist");
+
+  const { addSong, removeSong, selectedSongs, selectedPlaylistId, setPlaylistId } = useContext(SelectedSongsContext);
   const numSongsToDisplay = 10;
 
   // use selectedPlaylistId from selectedSongsContext, if nothing is selected use default Today's Top Hits
@@ -24,8 +26,8 @@ const HeatMapView = () => {
   const handleHeatmapButtonClick = (trackData, currentText) => {
     if (currentText === '+') {
       // '+' is clicked, when playlist is full button is not clickable
-        addSong(trackData);
-        return '-';
+      addSong(trackData);
+      return '-';
     } else {
       // '-' is clicked
       removeSong(trackData.id);
@@ -33,18 +35,72 @@ const HeatMapView = () => {
     }
   }
 
-    // listen to selectedPlaylistId
-    useEffect (() => {
-      if (selectedPlaylistId) {
-        setPlaylistID(selectedPlaylistId);
+  // listen to heatMapMode & selectedSongs
+  useEffect(() => {
+    // if from selected playlist -> selectedSongs
+    if (heatMapMode === "selectedSongs") {
+      // setPLaylistID to null
+      setPlaylistID(null);
+      setTracks(null);
+      setTrackIds(null);
+      setTrackAudioFeatures(null);
+      setData(null);
+      // set heatmap.playlist to user selectedSongs
+      heatMap.playlist.playlistID = null;
+      heatMap.playlist.playlistTitle = 'Selected Songs';
+      heatMap.playlist.playlistImageUrl = "https://community.spotify.com/t5/image/serverpage/image-id/55829iC2AD64ADB887E2A5/image-dimensions/2500?v=v2&px=-1";
+      heatMap.playlist.playlistUrl = null;
+      heatMap.playlist.playlistDescription = ''
+      // set trackIds to the combination of all trackIds from selectedSongs
+      let selectedSongsTrackIds = selectedSongs.map((song) => song.id).join(",");
+      // setTracks
+      if (selectedSongsTrackIds === "") {
+        setData([]);
+      } else {
+        const fetchData = async () => {
+          try {
+            const tracksResponse = await axios.get(
+              `https://api.spotify.com/v1/tracks`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                params: {
+                  ids: selectedSongsTrackIds
+                },
+              }
+            );
+            setTracks(tracksResponse.data.tracks);
+            setTrackIds(selectedSongsTrackIds);
+          } catch (error) {
+            console.error("Error during Spotify search", error);
+          }
+        };
+        fetchData();
       }
-    }, [selectedPlaylistId])
+      // trackIDs change -> fetch adiofeatures -> aduioFeatures changes -> changeData -> updateVis   
+    } else {
+      // if from selectedSongs -> selected playlist
+      // set playlistID to selectedPLaylistID
+      setPlaylistID(selectedPlaylistId);
+      // playlistID change -> trackIDs change  -> fetch audiofeatures -> data change -> updateVis
+
+    }
+  }, [heatMapMode, selectedSongs])
+
+  // listen to selectedPlaylistId
+  useEffect(() => {
+    if (selectedPlaylistId) {
+      setPlaylistID(selectedPlaylistId);
+    }
+  }, [selectedPlaylistId])
 
   // Keep track of selectedSongs, update buttons in heatmap according to it
   useEffect(() => {
-    if (heatMap && selectedSongs) {
+    if (heatMap && selectedSongs && heatMapMode === "selectedPlaylist") {
       heatMap.updateButtonStates(selectedSongs);
     }
+  
   }, [selectedSongs, heatMap]);
 
   useEffect(() => {
@@ -54,6 +110,10 @@ const HeatMapView = () => {
 
   // if logged in or playlistID changes
   useEffect(() => {
+    if (playlistID && playlistID !== selectedPlaylistId) {
+      // from useContext
+      setPlaylistId(playlistID);
+    }
     if (accessToken && playlistID && heatMap) {
       const fetchData = async () => {
         try {
@@ -71,11 +131,9 @@ const HeatMapView = () => {
           );
           heatMap.playlist.playlistID = playlistID;
           heatMap.playlist.playlistTitle = playlistResponse.data.name;
-          heatMap.playlist.playlistImageUrl =
-            playlistResponse.data.images[0].url;
+          heatMap.playlist.playlistImageUrl = playlistResponse.data.images[0].url;
           heatMap.playlist.playlistUrl = `https://open.spotify.com/playlist/${playlistID}`;
-          heatMap.playlist.playlistDescription =
-            playlistResponse.data.description;
+          heatMap.playlist.playlistDescription = playlistResponse.data.description;
 
           // Second API call, get trackIds
           const tracksResponse = await axios.get(
@@ -85,7 +143,6 @@ const HeatMapView = () => {
                 Authorization: `Bearer ${accessToken}`,
               },
               params: {
-                // fields: 'items(track(album(images),artists(name),id,name, external_urls))',
                 limit: numSongsToDisplay,
                 offset: 0,
               },
@@ -101,7 +158,7 @@ const HeatMapView = () => {
       };
       fetchData();
     }
-  }, [accessToken, playlistID, heatMap]);
+  }, [accessToken, playlistID]);
 
   // when trackIds is set from getTracksFromPlaylist
   useEffect(() => {
@@ -131,14 +188,22 @@ const HeatMapView = () => {
 
   // when audioFeatures and tracks are set, merge 2 into array of objects for heatmap
   useEffect(() => {
-    if (tracks && trackAudioFeatures) {
+    if (tracks && trackAudioFeatures && tracks.length === trackAudioFeatures.length) {
       let testArr = [];
-      for (let i = 0; i < tracks.length; i++) {
-        let testObj = { ...tracks[i].track, features: [trackAudioFeatures[i]] }
-        testArr.push(testObj);
+      if (tracks[0].track) {
+        // if this is from `https://api.spotify.com/v1/playlists/${playlistID}/tracks`
+        for (let i = 0; i < tracks.length; i++) {
+          let testObj = { ...tracks[i].track, features: [trackAudioFeatures[i]] }
+          testArr.push(testObj);
+        }
+      } else {
+        // if this is from `https://api.spotify.com/v1/tracks`
+        for (let i = 0; i < tracks.length; i++) {
+          let testObj = { ...tracks[i], features: [trackAudioFeatures[i]] }
+          testArr.push(testObj);
+        }
       }
       setData(testArr);
-
     }
   }, [trackAudioFeatures, tracks])
 
@@ -151,6 +216,22 @@ const HeatMapView = () => {
 
   return (
     <div className="heatmap-flex-container">
+      <div className="heatmap-selectbutton-container">
+        <button
+          className={`mode-button ${heatMapMode === "selectedSongs" ? 'selected' : ""
+            }`}
+          onClick={() => setHeatMapMode('selectedSongs')}
+        >
+          Selected Songs
+        </button>
+        <button
+          className={`mode-button ${heatMapMode === "selectedPlaylist" ? 'selected' : ""
+            }`}
+          onClick={() => setHeatMapMode('selectedPlaylist')}
+        >
+          Selected PlayList
+        </button>
+      </div>
       <svg ref={heatMapRef} id="heatmap"></svg>
       <div id="heatmap-tooltip" />
     </div>

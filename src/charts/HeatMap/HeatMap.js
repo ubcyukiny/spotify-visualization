@@ -131,20 +131,21 @@ export default class HeatMap {
      */
     updateVis() {
         let vis = this;
-
         // process data to change it to 0 to 10 scale, norm loudness and tempo
-        const processedData = JSON.parse(JSON.stringify(vis.data));
+        let processedData = vis.data;
         const featureKeys = ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'];
         // values are calculated from kaggle dataset of 114k songs https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset/
         const minTempo = 0;
         const maxTempo = 243.372;
         const minLoudness = -49.531;
         const maxLoudness = 4.532;
+
         //normalized tempo, loudnesss
         processedData.forEach(track => {
             track.features[0].tempo = (track.features[0].tempo - minTempo) / (maxTempo - minTempo);
             track.features[0].loudness = (track.features[0].loudness - minLoudness) / (maxLoudness - minLoudness);
         })
+
         // scale of 0 to 10
         processedData.forEach(track => {
             featureKeys.forEach(key => {
@@ -164,8 +165,15 @@ export default class HeatMap {
                 });
             });
         });
-        // update yScale domain
-        vis.yScale.domain(vis.data.map(d => truncateString(d.name, vis.config.truncateStringLength)))
+
+        // update yScale according to data.
+        let numberOfRows = processedData.length;
+        let rowHeight = vis.height / 10; // default rect height when numRows = 10
+
+        vis.yScale
+            .range([0, numberOfRows * rowHeight])
+            .domain(vis.data.map(d => truncateString(d.name, vis.config.truncateStringLength)))
+
         vis.renderVis();
     }
 
@@ -186,6 +194,7 @@ export default class HeatMap {
             .attr('width', vis.config.playlistImageWidth)
             .attr('height', vis.config.playlistImageHeight)
             .attr('xlink:href', vis.playlist.playlistImageUrl)
+            .attr('preserveAspectRatio', 'none'); // Stretch to fill the specified size
 
         // render title, color scale legend
         vis.title.append('text')
@@ -199,7 +208,9 @@ export default class HeatMap {
             .style('fill', "white")
             .style('cursor', 'pointer')
             .on('click', function (event, d) {
-                window.open(vis.playlist.playlistUrl, '_blank');
+                if (vis.playlist.playlistUrl) {
+                    window.open(vis.playlist.playlistUrl, '_blank');
+                }
             })
             .on('mouseover', function () {
                 d3.select(this).style('text-decoration', 'underline');
@@ -352,18 +363,17 @@ export default class HeatMap {
     updateButtonStates(selectedSongs) {
         let vis = this;
         if (vis.buttons) {
-            if (selectedSongs.length < 10) {
-                vis.buttons
-                    .text(d => selectedSongs.some(song => song.id === d.id) ? '-' : '+')
-                    .style('cursor', 'pointer')
-                    .style('fill', d => selectedSongs.some(song => song.id === d.id) ? '#dc3545' : '#28a745');
-            } else {
+            vis.buttons
+                .text(d => selectedSongs.some(song => song.id === d.id) ? '-' : '+')
+                .style('cursor', 'pointer')
+                .style('fill', d => selectedSongs.some(song => song.id === d.id) ? '#dc3545' : '#28a745');
+            if (selectedSongs.length >= 10) {
                 // buttons with text '+' should change the style to gray
                 const plusButtons = vis.buttons.filter(function () {
                     return d3.select(this).text() === '+';
                 })
                 plusButtons
-                    .style('cursor','not-allowed')
+                    .style('cursor', 'not-allowed')
                     .style('fill', '#6c757d');
             }
         }
