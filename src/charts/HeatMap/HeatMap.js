@@ -132,7 +132,8 @@ export default class HeatMap {
     updateVis() {
         let vis = this;
         // process data to change it to 0 to 10 scale, norm loudness and tempo
-        let processedData = vis.data;
+        // make a copy instead of a reference
+        const processedData = JSON.parse(JSON.stringify(vis.data));
         const featureKeys = ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'];
         // values are calculated from kaggle dataset of 114k songs https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset/
         const minTempo = 0;

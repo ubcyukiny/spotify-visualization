@@ -21,7 +21,7 @@ const HeatMapView = () => {
   const numSongsToDisplay = 10;
 
   // use selectedPlaylistId from selectedSongsContext, if nothing is selected use default Today's Top Hits
-  const [playlistID, setPlaylistID] = useState(selectedPlaylistId ? selectedPlaylistId : "37i9dQZF1DXcBWIGoYBM5M"); // id for Spotify's Today's Top Hits, default playlist for heatmap
+  const [playlistID, setPlaylistID] = useState(null);
 
   const handleHeatmapButtonClick = (trackData, currentText) => {
     if (currentText === '+') {
@@ -106,6 +106,9 @@ const HeatMapView = () => {
   useEffect(() => {
     const heatMap = new HeatMap({ parentElement: heatMapRef.current, handleHeatmapButtonClick: handleHeatmapButtonClick }, []);
     setHeatMap(heatMap);
+    setPlaylistId(playlistID); // for useContext
+    // for local state
+    setPlaylistID(selectedPlaylistId ? selectedPlaylistId : "37i9dQZF1DXcBWIGoYBM5M"); // id for Spotify's Today's Top Hits, default playlist for heatmap
   }, []);
 
   // if logged in or playlistID changes
