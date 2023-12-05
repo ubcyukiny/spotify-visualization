@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
 import SelectionTreeChart from "../charts/SelectionTreeChart/SelectionTreeChart";
 import SelectionTreeSearchBar from "../components/SelectionTree/SelectionTreeSearchBar";
 import axios from "axios";
@@ -9,8 +9,26 @@ export default function SelectionTreeView() {
     const accessToken = spotifyAccessToken;
     const selectionTreeChartRef = useRef(null);
 
+    const fetchAudioFeatures = async (trackIds) => {
+        try {
+            const response = await axios.get(
+                `https://api.spotify.com/v1/audio-features`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    params: {
+                        ids: trackIds
+                    }
+                }
+            );
+            return response.data.audio_features;
+        } catch (error) {
+            console.error("Error fetching track features", error);
+        }
+    }
+
     const getRecommendations = async (node) => {
-        
         const numChildren = 2;
         try {
             const response = await axios.get(
@@ -38,36 +56,19 @@ export default function SelectionTreeView() {
                 }
             });
             childrenIds = childrenIds.slice(0, -1);
-
-            try {
-                const response = await axios.get(
-                    `https://api.spotify.com/v1/audio-features`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                        params: {
-                            ids: childrenIds
-                        }
-                    }
-                );
-
-                const childrenFeatures = response.data.audio_features.map((track, index) => {
-                    return {
-                        track: {
-                            ...childrenTracks[index],
-                            ...track
-                        },
-                        selected: false,
-                        children:[]
-                    }
-                });
-
-                node.children = childrenFeatures;
-                selectionTreeChart.updateVis();
-            } catch (error) {
-                console.error("Error fetching track features", error);
-            }
+            const audioFeatures = await fetchAudioFeatures(childrenIds);
+            const childrenFeatures = audioFeatures.map((track, index) => {
+                return {
+                    track: {
+                        ...childrenTracks[index],
+                        ...track
+                    },
+                    selected: false,
+                    children:[]
+                }
+            });
+            node.children = childrenFeatures;
+            selectionTreeChart.updateVis();
         } catch(error) {
             console.log(error);
         }
@@ -80,26 +81,12 @@ export default function SelectionTreeView() {
     );
 
     const selectInitialSong = async (track) => {
-        try {
-            const response = await axios.get(
-                `https://api.spotify.com/v1/audio-features`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    params: {
-                        ids: track.id,
-                    },
-                }
-            );
-            const artists = track.artists.map((artist) => artist.name);
-            const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...response.data.audio_features[0]};
-            const tree = {track: rootTrack, children: [], selected: true};
-            selectionTreeChart.data = tree;
-            selectionTreeChart.updateVis();
-        } catch (error) {
-            console.error("Error fetching track features", error);
-        }
+        const audioFeatures = await fetchAudioFeatures(track.id);
+        const artists = track.artists.map((artist) => artist.name);
+        const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...audioFeatures[0]};
+        const tree = {track: rootTrack, children: [], selected: true};
+        selectionTreeChart.data = tree;
+        selectionTreeChart.updateVis();
     }
 
     return (
