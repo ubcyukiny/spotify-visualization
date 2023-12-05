@@ -1,6 +1,11 @@
 import * as d3 from "d3";
 import "./style.css";
 
+
+const boxPlotTooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+    
 export default class BoxPlot {
     constructor(_config, _data, _playlistName = '', _playlistImage = '') {
         this.config = {
@@ -52,10 +57,6 @@ export default class BoxPlot {
         vis.svg.append('g')
             .attr('class', 'axis y-axis')
             .attr('transform', `translate(${vis.config.margin.left}, ${vis.config.margin.top})`); // Translate y-axis
-
-        vis.tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
     }
 
     updateVis() {
@@ -84,71 +85,101 @@ export default class BoxPlot {
     renderVis() {
         let vis = this;
 
-        // Draw box plots
-        vis.boxGroups = vis.svg.selectAll('.box')
-            .data(vis.boxPlotData)
-            .enter()
-            .append('g')
-            .attr('class', 'box')
-            .attr('transform', d => `translate(${vis.xScale(d.attribute) + vis.config.margin.left + (vis.xScale.bandwidth() / 4)}, ${vis.config.margin.top})`);
+        let titleSelection = vis.svg.selectAll('.plot-title')
+            .data([vis.playlistName]);
 
-        // Display playlist name as title
-        vis.svg.append("text")
-            .attr("x", vis.config.margin.left + 50)
-            .attr("y", 40) // Adjusted for top placement
+        titleSelection.enter()
+            .append("text")
             .attr("class", "plot-title")
+            .merge(titleSelection)
+            .attr("x", vis.config.margin.left + 50)
+            .attr("y", 40)
             .attr('fill', 'white')
-            .text(vis.playlistName);
+            .text(d => d);
 
+        titleSelection.exit().remove();
 
-        if (vis.playlistImage) {
-            vis.svg.append("image")
-                .attr("href", vis.playlistImage)
-                .attr("x", vis.config.margin.left) // Adjust as needed
-                .attr("y", 10) // Adjusted for top placement
-                .attr("width", 40) // Adjust size as needed
-                .attr("height", 40);
-        }
-        vis.boxGroups
-            .append('rect')
-            .attr('x', 0) // Start from the left edge of the translated group
+        // Updateimage
+        let imageSelection = vis.svg.selectAll('.playlist-image')
+            .data(vis.playlistImage ? [vis.playlistImage] : []);
+
+        imageSelection.enter()
+            .append("image")
+            .attr("class", "playlist-image")
+            .merge(imageSelection)
+            .attr("href", d => d)
+            .attr("x", vis.config.margin.left)
+            .attr("y", 10)
+            .attr("width", 40)
+            .attr("height", 40);
+
+        imageSelection.exit().remove();
+
+        // Update the box groups with new data
+        vis.boxGroups = vis.svg.selectAll('.box')
+            .data(vis.boxPlotData, d => d.attribute);
+
+        vis.boxGroups.exit().remove();
+
+        let newBoxGroups = vis.boxGroups.enter().append('g')
+            .attr('class', 'box');
+
+        vis.boxGroups = vis.boxGroups.merge(newBoxGroups);
+
+        vis.boxGroups.attr('transform', d => `translate(${vis.xScale(d.attribute) + vis.config.margin.left + (vis.xScale.bandwidth() / 4)}, ${vis.config.margin.top})`);
+
+        // Update boxes
+        vis.boxGroups.selectAll('rect')
+            .data(d => [d])
+            .join('rect')
+            .attr('x', 0)
             .attr('y', d => vis.yScale(d.q3))
             .attr('width', vis.xScale.bandwidth() / 2)
             .attr('height', d => vis.yScale(d.q1) - vis.yScale(d.q3))
-            .attr('fill', 'lightblue')
+            .attr('fill', d => vis.colorScale(d.median))
             .attr('stroke', 'white');
 
 
         // Draw median line
-        vis.boxGroups.append('rect')
-        .attr('x', 0)
-        .attr('y', d => vis.yScale(d.q3))
-        .attr('width', vis.xScale.bandwidth() / 2)
-        .attr('height', d => vis.yScale(d.q1) - vis.yScale(d.q3))
-        .attr('fill', d => vis.colorScale(d.median)) // Color based on median value
-        .attr('stroke', 'white');
+        let medianLines = vis.boxGroups.selectAll('.median-line')
+            .data(d => [d]); // one line per group
+
+        medianLines.enter()
+            .append('line')
+            .attr('class', 'median-line')
+            .merge(medianLines) // Merge with entered selection
+            .attr('x1', 0)
+            .attr('x2', vis.xScale.bandwidth() / 2)
+            .attr('y1', d => vis.yScale(d.median))
+            .attr('y2', d => vis.yScale(d.median))
+            .attr('stroke', 'black');
+
+        medianLines.exit().remove(); // Remove excess lines
 
         // Draw whiskers
-        vis.boxGroups
-            .selectAll('.whisker')
-            .data(d => [[d.min, d.q1], [d.q3, d.max]])
-            .enter()
+        let whiskers = vis.boxGroups.selectAll('.whisker')
+            .data(d => [[d.min, d.q1], [d.q3, d.max]]); // Two whiskers per group
+
+        whiskers.enter()
             .append('line')
             .attr('class', 'whisker')
+            .merge(whiskers) // Merge with entered selection
             .attr('x1', vis.xScale.bandwidth() / 4)
             .attr('x2', vis.xScale.bandwidth() / 4)
             .attr('y1', d => vis.yScale(d[0]))
             .attr('y2', d => vis.yScale(d[1]))
             .attr('stroke', 'white');
 
+        whiskers.exit().remove(); // Remove excess lines
+
         // Update axes
         vis.svg.select('.x-axis').call(vis.xAxis);
         vis.svg.select('.y-axis').call(vis.yAxis);
 
         vis.boxGroups.on("mouseover", function (event, d) {
-            vis.tooltip.transition()
+            boxPlotTooltip.transition()
                 .style("opacity", .9);
-            vis.tooltip.html(
+            boxPlotTooltip.html(
                 `<strong>${d.attribute}</strong><br/>` +
                 `Q1: ${d.q1.toFixed(2)}<br/>` +
                 `Median: ${d.median.toFixed(2)}<br/>` +
@@ -174,7 +205,7 @@ export default class BoxPlot {
                 .attr('stroke-width', '3px');
         })
             .on("mouseout", function (d) {
-                vis.tooltip.transition()
+                boxPlotTooltip.transition()
                     .style("opacity", 0);
 
                 d3.select(this).select('rect')
@@ -194,3 +225,5 @@ export default class BoxPlot {
             });
     }
 }
+
+
