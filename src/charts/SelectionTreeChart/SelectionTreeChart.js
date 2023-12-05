@@ -67,19 +67,42 @@ export default class SelectionTreeChart {
         const vis = this;
 
         const getTooltipContent = (track) => {
-            return `<div class="track-name">${track.name}</div>
-                    <div>${track.artists[0]}</div>
-                    <ul>
-                        <li>Danceability: ${track.danceability}</li>
-                        <li>Energy: ${track.energy}</li>
-                        <li>Instrumentalness: ${track.instrumentalness}</li>
-                        <li>Liveness: ${track.liveness}</li>
-                        <li>Loudness: ${track.loudness}</li>
-                        <li>Speechiness: ${track.speechiness}</li>
-                        <li>Tempo: ${track.tempo}</li>
-                        <li>Valence: ${track.valence}</li>
-                    </ul>
-            `;
+                // d3.select('#heatmap-tooltip')
+                //     .style("display", "block")
+                //     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+                //     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+                //     .html(`
+                //     <div class="heatmap-tooltip-title">${d.trackName}</div>
+                //     <div><i>${findArtistByTrackName(vis.data, d.trackName)}</i></div>
+                //     <div>${capitalize(d.attribute)}: ${d.value.toFixed(2)}</div>
+                // `);
+            return `
+                    <div class="node-track-title">${track.name}</div>
+                    <div><i>${track.artists.reduce((output, artistName) => output + artistName + ", ", "").slice(0, -2)}</i></div>
+                    <div class="attr-container">
+                        <div>Danceability: ${track.danceability}</div>
+                        <div>Energy: ${track.energy}</div>
+                        <div>Instrumentalness: ${track.instrumentalness}</div>
+                        <div>Liveness: ${track.liveness}</div>
+                        <div>Loudness: ${track.loudness}</div>
+                        <div>Speechiness: ${track.speechiness}</div>
+                        <div>Tempo: ${track.tempo}</div>
+                        <div>Valence: ${track.valence}</div>
+                    </div>
+                    `;
+            // return `<div class="track-name">${track.name}</div>
+            //         <div>${track.artists[0]}</div>
+            //         <ul>
+            //             <div>Danceability: ${track.danceability}</div>
+            //             <div>Energy: ${track.energy}</div>
+            //             <div>Instrumentalness: ${track.instrumentalness}</div>
+            //             <div>Liveness: ${track.liveness}</div>
+            //             <div>Loudness: ${track.loudness}</div>
+            //             <div>Speechiness: ${track.speechiness}</div>
+            //             <div>Tempo: ${track.tempo}</div>
+            //             <div>Valence: ${track.valence}</div>
+            //         </ul>
+            // `;
         }
 
         console.log("root");
@@ -112,7 +135,6 @@ export default class SelectionTreeChart {
             .attr('width', 50)
             .attr('height', 50);
             
-
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
                 const track = d.data.track;
