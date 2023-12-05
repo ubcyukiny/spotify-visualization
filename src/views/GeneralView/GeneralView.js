@@ -14,15 +14,7 @@ import { SelectedSongsContext } from "../../context/SelectedSongsContext";
 
 const GeneralView = () => {
   const { spotifyAccessToken } = useSpotifyAuth();
-  const { appMode } = useContext(SelectedSongsContext);
   const [panelMode, setPanelMode] = useState("explore"); // explore or overview
-
-  useEffect(() => {
-    if(appMode === "playlist") {
-      setPanelMode("overview");
-    }
-  }
-  , [appMode]);
 
   return (
     <div>
@@ -41,7 +33,6 @@ const GeneralView = () => {
                   panelMode === "explore" ? "selected" : ""
                 }`}
                 onClick={() => setPanelMode("explore")}
-                disabled={appMode === "playlist"}
               >
                 Explore
               </button>
