@@ -56,44 +56,54 @@ const HeatMapView = () => {
 
   // if logged in or playlistID changes, TODO: remove, clean up commented codes fields to match selectSongs
   useEffect(() => {
-    if (accessToken && playlistID) {
+    if (accessToken && playlistID && heatMap) {
       const fetchData = async () => {
         try {
           // First API call, get playlist image, title
-          const playlistResponse = await axios.get(`https://api.spotify.com/v1/playlists/${playlistID}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              fields: 'images(url), name, description'
-            },
-          });
+          const playlistResponse = await axios.get(
+            `https://api.spotify.com/v1/playlists/${playlistID}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+              params: {
+                fields: "images(url), name, description",
+              },
+            }
+          );
           heatMap.playlist.playlistID = playlistID;
           heatMap.playlist.playlistTitle = playlistResponse.data.name;
-          heatMap.playlist.playlistImageUrl = playlistResponse.data.images[0].url;
+          heatMap.playlist.playlistImageUrl =
+            playlistResponse.data.images[0].url;
           heatMap.playlist.playlistUrl = `https://open.spotify.com/playlist/${playlistID}`;
-          heatMap.playlist.playlistDescription = playlistResponse.data.description;
+          heatMap.playlist.playlistDescription =
+            playlistResponse.data.description;
 
           // Second API call, get trackIds
-          const tracksResponse = await axios.get(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              // fields: 'items(track(album(images),artists(name),id,name, external_urls))',
-              limit: numSongsToDisplay,
-              offset: 0
-            },
-          });
+          const tracksResponse = await axios.get(
+            `https://api.spotify.com/v1/playlists/${playlistID}/tracks`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+              params: {
+                // fields: 'items(track(album(images),artists(name),id,name, external_urls))',
+                limit: numSongsToDisplay,
+                offset: 0,
+              },
+            }
+          );
           setTracks(tracksResponse.data.items);
-          setTrackIds(tracksResponse.data.items.map(item => item.track.id).join(','));
+          setTrackIds(
+            tracksResponse.data.items.map((item) => item.track.id).join(",")
+          );
         } catch (error) {
           console.error("Error during Spotify search", error);
         }
       };
       fetchData();
     }
-  }, [accessToken, playlistID]);
+  }, [accessToken, playlistID, heatMap]);
 
   // when trackIds is set from getTracksFromPlaylist
   useEffect(() => {
