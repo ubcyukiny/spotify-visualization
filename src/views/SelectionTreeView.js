@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import SelectionTreeChart from "../charts/SelectionTreeChart/SelectionTreeChart";
 import SelectionTreeSearchBar from "../components/SelectionTree/SelectionTreeSearchBar";
 import axios from "axios";
@@ -8,6 +8,8 @@ export default function SelectionTreeView() {
     const { spotifyAccessToken } = useSpotifyAuth();
     const accessToken = spotifyAccessToken;
     const selectionTreeChartRef = useRef(null);
+    const [selectionTreeChart, setSelectionTreeChart] = useState(null);
+    const [selectedNode, setSelectedNode] = useState(null);
 
     const fetchAudioFeatures = async (trackIds) => {
         try {
@@ -28,57 +30,69 @@ export default function SelectionTreeView() {
         }
     }
 
-    const getRecommendations = async (node) => {
-        const numChildren = 2;
-        try {
-            const response = await axios.get(
-                'https://api.spotify.com/v1/recommendations',
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    params: {
-                        seed_tracks: node.track.id
+    useEffect(() => {
+        if (!selectedNode)
+         return;
+
+        const getRecommendations = async (node) => {
+            console.log(node);
+            const numChildren = 2;
+            try {
+                const response = await axios.get(
+                    'https://api.spotify.com/v1/recommendations',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        params: {
+                            seed_tracks: node.track.id
+                        }
+                    });
+                const childrenData = response.data.tracks.slice(0, numChildren);
+                let childrenIds = "";
+
+                const childrenTracks = childrenData.map((data) => {
+                    childrenIds += data.id + ",";
+                    return {
+                        name: data.name,
+                        id: data.id,
+                        albumCover: data.album.images[0].url,
+                        artists: data.artists.map((artist) => artist.name),
+                        duration_ms: data.duration_ms,
+                        uri: data.uri
                     }
                 });
-            const childrenData = response.data.tracks.slice(0, numChildren);
-            let childrenIds = "";
-
-            const childrenTracks = childrenData.map((data) => {
-                childrenIds += data.id + ",";
-                return {
-                    name: data.name,
-                    id: data.id,
-                    albumCover: data.album.images[0].url,
-                    artists: data.artists.map((artist) => artist.name),
-                    duration_ms: data.duration_ms,
-                    uri: data.uri
-                }
-            });
-            childrenIds = childrenIds.slice(0, -1);
-            const audioFeatures = await fetchAudioFeatures(childrenIds);
-            const childrenFeatures = audioFeatures.map((track, index) => {
-                return {
-                    track: {
-                        ...childrenTracks[index],
-                        ...track
-                    },
-                    selected: false,
-                    children:[]
-                }
-            });
-            node.children = childrenFeatures;
-            selectionTreeChart.updateVis();
-        } catch(error) {
-            console.log(error);
+                childrenIds = childrenIds.slice(0, -1);
+                const audioFeatures = await fetchAudioFeatures(childrenIds);
+                const childrenFeatures = audioFeatures.map((track, index) => {
+                    return {
+                        track: {
+                            ...childrenTracks[index],
+                            ...track
+                        },
+                        selected: false,
+                        children:[]
+                    }
+                });
+                node.children = childrenFeatures;
+                selectionTreeChart.updateVis();
+            } catch(error) {
+                console.log(error);
+            }
         }
-    }
 
-    const selectionTreeChart = new SelectionTreeChart(
-        { parentElement: selectionTreeChartRef.current },
-        {},
-        getRecommendations
-    );
+        getRecommendations(selectedNode);
+    }, [selectedNode]);
+
+    useEffect(() => {
+        console.log("rendered");
+        const selectionTreeChart = new SelectionTreeChart(
+            { parentElement: selectionTreeChartRef.current },
+            {},
+            setSelectedNode
+        );
+        setSelectionTreeChart(selectionTreeChart);
+    }, []);
 
     const selectInitialSong = async (track) => {
         const audioFeatures = await fetchAudioFeatures(track.id);

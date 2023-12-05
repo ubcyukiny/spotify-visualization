@@ -40,7 +40,6 @@ export default class SelectionTreeChart {
             .attr("width", vis.config.containerWidth)
             .attr("height", vis.config.containerHeight);
 
-        console.log("init vis called");
 
         vis.chart = vis.svg
             .append("g")
@@ -50,6 +49,7 @@ export default class SelectionTreeChart {
             );
 
         vis.cluster = d3.cluster().size([vis.height, vis.width - 100]);
+        console.log("init vis called");
     }
 
     updateVis() {
@@ -57,7 +57,7 @@ export default class SelectionTreeChart {
 
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
-        console.log("selection chart");
+        console.log("update called");
         console.log(vis.root);
 
         this.renderVis();
@@ -67,15 +67,6 @@ export default class SelectionTreeChart {
         const vis = this;
 
         const getTooltipContent = (track) => {
-                // d3.select('#heatmap-tooltip')
-                //     .style("display", "block")
-                //     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-                //     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-                //     .html(`
-                //     <div class="heatmap-tooltip-title">${d.trackName}</div>
-                //     <div><i>${findArtistByTrackName(vis.data, d.trackName)}</i></div>
-                //     <div>${capitalize(d.attribute)}: ${d.value.toFixed(2)}</div>
-                // `);
             return `
                     <div class="node-track-title">${track.name}</div>
                     <div><i>${track.artists.reduce((output, artistName) => output + artistName + ", ", "").slice(0, -2)}</i></div>
@@ -90,19 +81,6 @@ export default class SelectionTreeChart {
                         <div>Valence: ${track.valence}</div>
                     </div>
                     `;
-            // return `<div class="track-name">${track.name}</div>
-            //         <div>${track.artists[0]}</div>
-            //         <ul>
-            //             <div>Danceability: ${track.danceability}</div>
-            //             <div>Energy: ${track.energy}</div>
-            //             <div>Instrumentalness: ${track.instrumentalness}</div>
-            //             <div>Liveness: ${track.liveness}</div>
-            //             <div>Loudness: ${track.loudness}</div>
-            //             <div>Speechiness: ${track.speechiness}</div>
-            //             <div>Tempo: ${track.tempo}</div>
-            //             <div>Valence: ${track.valence}</div>
-            //         </ul>
-            // `;
         }
 
         console.log("root");
@@ -134,7 +112,7 @@ export default class SelectionTreeChart {
             .attr('xlink:href', d => d.data.track.albumCover)
             .attr('width', 50)
             .attr('height', 50);
-            
+
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
                 const track = d.data.track;
