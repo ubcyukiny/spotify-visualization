@@ -40,6 +40,7 @@ export default class SelectionTreeChart {
             .attr("width", vis.config.containerWidth)
             .attr("height", vis.config.containerHeight);
 
+
         vis.chart = vis.svg
             .append("g")
             .attr(
@@ -55,8 +56,8 @@ export default class SelectionTreeChart {
 
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
-        console.log("selection chart");
-        console.log(vis.root);
+        // console.log("update called");
+        // console.log(vis.root);
 
         this.renderVis();
     }
@@ -65,20 +66,24 @@ export default class SelectionTreeChart {
         const vis = this;
 
         const getTooltipContent = (track) => {
-            return `<div class="track-name">${track.name}</div>
-                    <div>${track.artists[0]}</div>
-                    <ul>
-                        <li>Danceability: ${track.danceability}</li>
-                        <li>Energy: ${track.energy}</li>
-                        <li>Instrumentalness: ${track.instrumentalness}</li>
-                        <li>Liveness: ${track.liveness}</li>
-                        <li>Loudness: ${track.loudness}</li>
-                        <li>Speechiness: ${track.speechiness}</li>
-                        <li>Tempo: ${track.tempo}</li>
-                        <li>Valence: ${track.valence}</li>
-                    </ul>
-            `;
+            return `
+                    <div class="node-track-title">${track.name}</div>
+                    <div><i>${track.artists.reduce((output, artistName) => output + artistName + ", ", "").slice(0, -2)}</i></div>
+                    <div class="attr-container">
+                        <div>Danceability: ${track.danceability}</div>
+                        <div>Energy: ${track.energy}</div>
+                        <div>Instrumentalness: ${track.instrumentalness}</div>
+                        <div>Liveness: ${track.liveness}</div>
+                        <div>Loudness: ${track.loudness}</div>
+                        <div>Speechiness: ${track.speechiness}</div>
+                        <div>Tempo: ${track.tempo}</div>
+                        <div>Valence: ${track.valence}</div>
+                    </div>
+                    `;
         }
+
+        // console.log("root");
+        // console.log (vis.root.descendants());
 
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
@@ -90,25 +95,25 @@ export default class SelectionTreeChart {
                         + " " + d.parent.y + "," + d.parent.x;
               })
             .style('fill', 'none')
-            .attr('stroke', '#ccc');
+            .attr('stroke', (d) => {
+                if (d.data.selected)
+                    return "#aa4a44";
+                return "#ccc";
+            });
 
-        vis.chart.selectAll('g')
-            .data(vis.root.descendants())
-            .join('g')
+        vis.chart.selectAll('image')
+            .data(vis.root.descendants(), d => d.data.track.id)
+            .join('image')
             .classed('node', true)
             .attr('transform', d => {
-                return `translate(${d.y}, ${d.x})`
+                return `translate(${d.y - 25}, ${d.x - 25})`
             })
-            .append('circle')
-                .attr('r', 7)
-                .style("fill", "#69b3a2")
-                .attr("stroke", "black")
-                .style("stroke-width", 2);
+            .attr('xlink:href', d => d.data.track.albumCover)
+            .attr('width', 50)
+            .attr('height', 50);
 
         vis.chart.selectAll('.node')
             .on('mouseover', function(event, d) {
-                console.log('hover');
-                console.log(d);
                 const track = d.data.track;
                 d3.select('#selectionTreeTooltip')
                     .style('display', 'block')
@@ -122,8 +127,7 @@ export default class SelectionTreeChart {
             })
             .on('click', function (event, d) {
                 const track = d.data.track;
-                // vis.setSelectedNode(track);
-                // console.log("chart");
+                d.data.selected = true;
                 vis.getRecommedations(d.data);
             });
     }
