@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useSpotifyAuth } from "../../context/SpotifyAuthContext";
 import SpotifyLogin from "../../components/SpotifyLogin/SpotifyLogin";
@@ -14,7 +14,13 @@ import { SelectedSongsContext } from "../../context/SelectedSongsContext";
 
 const GeneralView = () => {
   const { spotifyAccessToken } = useSpotifyAuth();
-  const [panelMode, setPanelMode] = useState("explore"); // explore or overview
+  const { selectedPlaylistId } = useContext(SelectedSongsContext);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!selectedPlaylistId || selectedPlaylistId === '37i9dQZF1DXcBWIGoYBM5M') return;
+    ref.current.scrollIntoView({ behavior: "smooth" });
+  }, [selectedPlaylistId]);
 
   return (
     <div>
@@ -31,6 +37,7 @@ const GeneralView = () => {
           <div className="right-section">
             <SelectionTreeView />
             <RadarChartView />
+            <div ref={ref}></div>
             <HeatMapView />
             <BoxPlotView />
           </div>
