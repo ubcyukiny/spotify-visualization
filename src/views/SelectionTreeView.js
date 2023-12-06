@@ -20,6 +20,7 @@ export default function SelectionTreeView() {
     appMode,
     setAppMode,
     moreSongsCanBeAdded,
+    isSongAlreadyAdded
   } = useContext(SelectedSongsContext);
 
   const fetchAudioFeatures = async (trackIds) => {
@@ -45,14 +46,15 @@ export default function SelectionTreeView() {
     if (!selectedNode) return;
 
     const getRecommendations = async (node) => {
-      console.log(node);
-      console.log(node.selectionContext);
-      if (!moreSongsCanBeAdded()) {
-        alert("Song limit reached");
-        setSelectedNode(null);
-        return;
+      if (!isSongAlreadyAdded(node.track)) {
+        if (!moreSongsCanBeAdded()) {
+            alert("Song limit reached");
+            setSelectedNode(null);
+            return;
+        }
+       addSong(node.selectionContext);
       }
-      addSong(node.selectionContext);
+    
       const numChildren = 2;
       try {
         const response = await axios.get(
