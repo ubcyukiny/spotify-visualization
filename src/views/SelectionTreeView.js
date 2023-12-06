@@ -54,7 +54,7 @@ export default function SelectionTreeView() {
         }
        addSong(node.selectionContext);
       }
-    
+
       const numChildren = 2;
       try {
         const response = await axios.get(
@@ -97,6 +97,7 @@ export default function SelectionTreeView() {
         });
         node.children = childrenNodes;
         selectionTreeChart.updateVis();
+        setSelectedNode(null);
       } catch (error) {
         console.log(error);
       }
