@@ -44,8 +44,6 @@ export default function SelectionTreeView() {
          return;
 
         const getRecommendations = async (node) => {
-            console.log(node);
-            console.log(node.selectionContext);
             addSong(node.selectionContext);
             const numChildren = 2;
             try {
@@ -97,7 +95,6 @@ export default function SelectionTreeView() {
     }, [selectedNode]);
 
     useEffect(() => {
-        console.log("rendered");
         const selectionTreeChart = new SelectionTreeChart(
             { parentElement: selectionTreeChartRef.current },
             {},
@@ -117,7 +114,6 @@ export default function SelectionTreeView() {
             ...audioFeatures[0],
             
         };
-        // const rootTrack = {name: track.name, albumCover: track.album.images[0].url, id: track.id, artists: artists, ...audioFeatures[0]};
         const tree = {track: rootTrack, children: [], selected: true, selectionContext: {...track, features: [audioFeatures[0]]}};
         selectionTreeChart.data = tree;
         selectionTreeChart.updateVis();
@@ -126,6 +122,7 @@ export default function SelectionTreeView() {
     return (
         <div>
             <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
+            <h6>Explore similar songs by following down a branching tree of similar tracks</h6>
             <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
             <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
         </div>

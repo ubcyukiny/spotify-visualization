@@ -56,8 +56,6 @@ export default class SelectionTreeChart {
 
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
-        // console.log("update called");
-        // console.log(vis.root);
 
         this.renderVis();
     }
@@ -81,9 +79,6 @@ export default class SelectionTreeChart {
                     </div>
                     `;
         }
-
-        // console.log("root");
-        // console.log (vis.root.descendants());
 
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
