@@ -103,46 +103,52 @@ export default function SelectionTreeView() {
     getRecommendations(selectedNode);
   }, [selectedNode]);
 
-    useEffect(() => {
-        const selectionTreeChart = new SelectionTreeChart(
-            { parentElement: selectionTreeChartRef.current },
-            {},
-            setSelectedNode
-        );
-        setSelectionTreeChart(selectionTreeChart);
-    }, []);
+  useEffect(() => {
+    const selectionTreeChart = new SelectionTreeChart(
+      { parentElement: selectionTreeChartRef.current },
+      {},
+      setSelectedNode
+    );
+    setSelectionTreeChart(selectionTreeChart);
+  }, []);
 
-    const selectInitialSong = async (track) => {
-        const audioFeatures = await fetchAudioFeatures(track.id);
-        const artists = track.artists.map((artist) => artist.name);
-        const rootTrack = {
-            name: track.name,
-            albumCover: track.album.images[0].url,
-            id: track.id,
-            artists: artists,
-            ...audioFeatures[0],
-            
-        };
-        const tree = {track: rootTrack, children: [], selected: true, selectionContext: {...track, features: [audioFeatures[0]]}};
-        selectionTreeChart.data = tree;
-        selectionTreeChart.updateVis();
-        setIsInitialSongSelected(true);
-    }
+  const selectInitialSong = async (track) => {
+    const audioFeatures = await fetchAudioFeatures(track.id);
+    const artists = track.artists.map((artist) => artist.name);
+    const rootTrack = {
+      name: track.name,
+      albumCover: track.album.images[0].url,
+      id: track.id,
+      artists: artists,
+      ...audioFeatures[0],
+    };
+    const tree = {
+      track: rootTrack,
+      children: [],
+      selected: true,
+      selectionContext: { ...track, features: [audioFeatures[0]] },
+    };
+    selectionTreeChart.data = tree;
+    selectionTreeChart.updateVis();
+    setIsInitialSongSelected(true);
+  };
 
-    return (
-      <div className="selection-tree-container">
-        <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
-        {isInitialSongSelected ? null : (
-          <h6 className="selection-tree-guidence">
-            Search and select a song to proceed.
-          </h6>
-        )}
+  return (
+    <div className="selection-tree-container">
+      <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
+      {isInitialSongSelected ? (
         <h6>
           Explore similar songs by following down a branching tree of similar
           tracks
         </h6>
-        <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
-        <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
-      </div>
-    );
+      ) : (
+        <h6 className="selection-tree-guidence">
+          Search and select a song to proceed.
+        </h6>
+      )}
+
+      <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
+      <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
+    </div>
+  );
 }
