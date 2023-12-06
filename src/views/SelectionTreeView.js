@@ -54,6 +54,8 @@ export default function SelectionTreeView() {
         }
        addSong(node.selectionContext);
       }
+
+    console.log("api called");
     
       const numChildren = 2;
       try {
@@ -97,6 +99,7 @@ export default function SelectionTreeView() {
         });
         node.children = childrenNodes;
         selectionTreeChart.updateVis();
+        setSelectedNode(null);
       } catch (error) {
         console.log(error);
       }
