@@ -22,11 +22,11 @@
 
 6. **Most basic boxplot in d3.js**
    this site provides the code for drawing boxplots with an responsive editing section
-   [Most basic boxplot in d3.js] (https://d3-graph-gallery.com/graph/boxplot_basic.html)
+   [Most basic boxplot in d3.js](https://d3-graph-gallery.com/graph/boxplot_basic.html)
 
 7. **Chapter 05 Lines**
    this page provides instructions and basic code on how to draw lines between points
-   [Chapter 05 Lines] (http://using-d3js.com/05_02_lines.html)
+   [Chapter 05 Lines](http://using-d3js.com/05_02_lines.html)
 
 8. **Hooks at a Glance**
    this documentation page provides tutorial and instrucions on how to use hooks in React
