@@ -91,7 +91,9 @@ const HeatMapView = () => {
   // listen to selectedPlaylistId
   useEffect(() => {
     if (selectedPlaylistId) {
-      setPlaylistID(selectedPlaylistId);
+      if (heatMapMode === "selectedPlaylist") {
+        setPlaylistID(selectedPlaylistId);
+      }
     }
   }, [selectedPlaylistId])
 
