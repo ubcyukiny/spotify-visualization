@@ -13,7 +13,7 @@
    [Spotify Web API Documentation](https://developer.spotify.com/documentation/web-api)
 
 4. **Spotify Web API Authorization Examples**  
-   Spotify Web API authoriztion sample repo.
+   Spotify Web API authorization sample repo.
    [Spotify Web API Authorization Examples on GitHub](https://github.com/spotify/web-api-examples/tree/master/authorization/authorization_code)
 
 5. **Customizing Heatmaps in D3.js**
