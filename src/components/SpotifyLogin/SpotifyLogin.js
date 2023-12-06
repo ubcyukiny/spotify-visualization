@@ -123,7 +123,6 @@ const ArtistScroll = ({ artists }) => {
         rowIndex * artistsPerRow,
         (rowIndex + 1) * artistsPerRow
       );
-      console.log(rowArtists);
       return (
         <div className={`scroll-row row${rowIndex + 1}`} key={rowIndex}>
           {rowArtists.map((artist, index, array) => {
@@ -149,11 +148,8 @@ const ArtistScroll = ({ artists }) => {
 const SpotifyLogin = () => {
     const { spotifyAccessToken, updateCredentials } = useSpotifyAuth();
     const client_id = process.env.REACT_APP_CLIENT_ID; 
-    // console.log(client_id);
     const client_secret = process.env.REACT_APP_CLIENT_SECRET; 
-    // console.log(client_secret);
     const redirect_uri = window.location.origin + "/callback"; 
-    console.log(redirect_uri);
     const generateRandomString = (length) => {
         const array = new Uint8Array(length);
         window.crypto.getRandomValues(array);
@@ -167,11 +163,6 @@ const SpotifyLogin = () => {
         const code = params.get("code");
         const state = params.get("state");
         const storedState = localStorage.getItem("spotify_auth_state");
-
-        // console.log("Code from URL:", code);
-        // console.log("State from URL:", state);
-        // console.log("Stored state:", storedState);
-
         if (code && state && state === storedState) {
             handleCallback(code, state);
             localStorage.removeItem("spotify_auth_state");

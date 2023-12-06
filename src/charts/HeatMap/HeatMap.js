@@ -153,7 +153,6 @@ export default class HeatMap {
                 track.features[0][key] *= 10
             })
         })
-        console.log(processedData);
         // process data for heatmap rect
         vis.heatmapData = [];
         processedData.forEach(track => {

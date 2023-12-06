@@ -5,7 +5,6 @@ import { useRef } from "react";
 import * as d3 from "d3";
 
 const buildSongData = (originalData) => {
-  console.log(originalData);
   const { name, album, artists, duration_ms, features } = originalData;
   const id = originalData.id;
   const artistName = artists[0].name;

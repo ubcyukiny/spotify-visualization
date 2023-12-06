@@ -8,8 +8,6 @@ export const SpotifyAuthProvider = ({ children }) => {
   const [spotifyAccessToken, setspotifyAccessToken] = useState(null);
   const [spotifyRefreshToken, setspotifyRefreshToken] = useState(null);
 
-  console.log("spotifyAccessToken", spotifyAccessToken);
-
   const updateCredentials = (accessToken, refreshToken) => {
     setspotifyAccessToken(accessToken);
     setspotifyRefreshToken(refreshToken);

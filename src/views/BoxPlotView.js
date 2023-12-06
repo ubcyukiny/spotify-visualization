@@ -128,7 +128,6 @@ const BoxPlotView = () => {
       return buildSongData(song);
     });
     setSongData(newSongData);
-    console.log(newSongData)
   }, [selectedSongs]);
 
   // Update BoxPlot
