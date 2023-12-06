@@ -55,8 +55,6 @@ export default function SelectionTreeView() {
        addSong(node.selectionContext);
       }
 
-    console.log("api called");
-    
       const numChildren = 2;
       try {
         const response = await axios.get(
