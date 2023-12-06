@@ -56,8 +56,6 @@ export default class SelectionTreeChart {
 
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
-        // console.log("update called");
-        // console.log(vis.root);
 
         this.renderVis();
     }
@@ -81,9 +79,6 @@ export default class SelectionTreeChart {
                     </div>
                     `;
         }
-
-        // console.log("root");
-        // console.log (vis.root.descendants());
 
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
@@ -132,15 +127,3 @@ export default class SelectionTreeChart {
             });
     }
 }
-
-// const formatDuration = (duration_ms) => {
-//     let seconds = Math.floor((duration_ms / 1000) % 60);
-//     let minutes = Math.floor((duration_ms / (1000 * 60)) % 60);
-//     let hours = Math.floor((duration_ms / (1000 * 60 * 60)) % 24);
-
-//     hours = hours < 10 ? "0" + hours : hours;
-//     minutes = minutes < 10 ? "0" + minutes : minutes;
-//     seconds = seconds < 10 ? "0" + seconds : seconds;
-
-//     return hours + ":" + minutes + ":" + seconds;
-// }

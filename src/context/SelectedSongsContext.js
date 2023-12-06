@@ -17,6 +17,10 @@ export const SelectedSongsProvider = ({ children }) => {
     return selectedSongs.length < songLimit;
   }
 
+  const isSongAlreadyAdded = (song) => {
+    return selectedSongs.find((selectedSong) => selectedSong.id === song.id);
+  }
+
   // using functional update
   const addSong = (newSong) => {
     console.log("added");
@@ -71,6 +75,7 @@ export const SelectedSongsProvider = ({ children }) => {
         removePlaylistId,
         setAppMode,
         moreSongsCanBeAdded,
+        isSongAlreadyAdded
       }}
     >
       {children}
