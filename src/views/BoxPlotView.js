@@ -4,12 +4,48 @@ import { useSpotifyAuth } from "../context/SpotifyAuthContext";
 import BoxPlot from "../charts/BoxPlot/BoxPlot";
 import { SelectedSongsContext } from "../context/SelectedSongsContext";
 
+const buildSongData = (originalData) => {
+  const { name, album, artists, duration_ms, features } = originalData;
+  const artistName = artists[0].name;
+  const cover = album?.images[0].url;
+  const minTempo = 0;
+  const maxTempo = 243.372;
+  const normalizeLoudness = (loudness) => ((loudness + 60) / 60) * 10;
+  const normalizeFeature = (value) => value * 10;
+  const normalizeTempo = (tempo) => (tempo - minTempo) / (maxTempo - minTempo);
+  const mappedFeatures = features
+    .flatMap((feature) => {
+      return [
+        {
+          axis: "instrumentalness",
+          value: normalizeFeature(feature.instrumentalness),
+        },
+        { axis: "danceability", value: normalizeFeature(feature.danceability) },
+        { axis: "energy", value: normalizeFeature(feature.energy) },
+        { axis: "loudness", value: normalizeLoudness(feature.loudness) },
+        { axis: "speechiness", value: normalizeFeature(feature.speechiness) },
+        { axis: "acousticness", value: normalizeFeature(feature.acousticness) },
+        { axis: "liveness", value: normalizeFeature(feature.liveness) },
+        { axis: "valence", value: normalizeFeature(feature.valence) },
+        { axis: "tempo", value: normalizeTempo(feature.tempo)}
+      ];
+    }); 
+
+  return {
+    name,
+    cover,
+    artist: artistName,
+    duration_ms,
+    features: mappedFeatures,
+  };
+};
 
 const BoxPlotView = () => {
   const { spotifyAccessToken } = useSpotifyAuth();
   const accessToken = spotifyAccessToken;
   const boxPlotRef = useRef(null);
   const [data, setData] = useState(null);
+  const [songData, setSongData] = useState(null);
   const [boxPlot, setBoxPlot] = useState(null);
   const [playlistName, setPlaylistName] = useState('');
   const [playlistImage, setPlaylistImage] = useState('');
@@ -17,11 +53,11 @@ const BoxPlotView = () => {
   const playlistId = selectedPlaylistId || '37i9dQZF1DXcBWIGoYBM5M'; // default playlist
 
   useEffect(() => {
-    const boxPlot = new BoxPlot({ 
-      parentElement: boxPlotRef.current 
-    }, [], playlistName, playlistImage);
-    setBoxPlot(boxPlot);
-  }, [playlistName, playlistImage]);
+    const newBoxPlot = new BoxPlot({
+      parentElement: boxPlotRef.current
+    }, [], playlistName, playlistImage, songData);
+    setBoxPlot(newBoxPlot);
+  }, []);
 
   useEffect(() => {
     if (accessToken && playlistId) {
@@ -76,7 +112,6 @@ const BoxPlotView = () => {
                 ...normalizedFeatures
               };
             });
-  
             setData(mergedData);
           }
         } catch (error) {
@@ -88,13 +123,24 @@ const BoxPlotView = () => {
     }
   }, [accessToken, playlistId]);
   
+  useEffect(() => {
+    const newSongData = selectedSongs.map((song) => {
+      return buildSongData(song);
+    });
+    setSongData(newSongData);
+    console.log(newSongData)
+  }, [selectedSongs]);
 
   // Update BoxPlot
   useEffect(() => {
-    if (!data) return;
-    boxPlot.data = data;
-    boxPlot.updateVis();
-  }, [data]);
+    if (boxPlot && data && songData) {
+      boxPlot.data = data;
+      boxPlot.songData = songData;
+      boxPlot.playlistName = playlistName;
+      boxPlot.playlistImage = playlistImage;
+      boxPlot.updateVis();
+    }
+  }, [boxPlot, data, songData, playlistName, playlistImage]);
 
   return (
     <div>
