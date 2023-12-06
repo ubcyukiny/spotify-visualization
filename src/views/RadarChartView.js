@@ -99,6 +99,7 @@ const RadarChartView = () => {
           Remove
         </button>
       </div>
+      <div id="labelTooltip" className="label-tooltip"></div>
       <svg ref={radarChartRef} id="radarchart"></svg>
     </div>
   );

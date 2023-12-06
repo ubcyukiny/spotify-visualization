@@ -59,6 +59,19 @@ export default class RadarChart {
       ])
       .domain([0, 7]);
 
+    vis.labelDescriptions = {
+      instrumentalness: "Whether a track contains no vocals.",
+      danceability:
+        "Combines tempo, rhythm stability, beat strength, and regularity.",
+      energy:
+        "Measures intensity in music. High energy: fast, loud, noisy. Low energy: calm.",
+      valence: "Describing the musical positiveness conveyed by a track. High valence: happy, cheerful. Low valence: sad, depressed.",
+      loudness: "The overall loudness of a track.",
+      speechiness: "The presence of spoken words in a track.",
+      acousticness: "Whether the track is acoustic.",
+      liveness: "The presence of an audience in the track.",
+    };
+
     vis.axisScale = d3
       .scaleOrdinal()
       .range(d3.range(vis.numAxes))
@@ -154,6 +167,20 @@ export default class RadarChart {
       )
       .text((d) => vis.labelScale(d))
       .style("fill", "white");
+
+      vis.labels
+        .on("mouseover", function (event, d) {
+          const label = vis.labelScale(d);
+
+          d3.select("#labelTooltip")
+            .style("opacity", 1)
+            .html("<span>" + vis.labelDescriptions[label] + "</span>")
+            .style("left", event.pageX + 10 + "px")
+            .style("top", event.pageY + 10 + "px");
+        })
+        .on("mouseout", function (d) {
+          d3.select("#labelTooltip").style("opacity", 0);
+        });
 
     vis.radarArea = vis.chart.append("g").attr("class", "radar-area");
 
