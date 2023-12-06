@@ -106,7 +106,6 @@ export default function SelectionTreeView() {
   }, [selectedNode]);
 
   useEffect(() => {
-    console.log("rendered");
     const selectionTreeChart = new SelectionTreeChart(
       { parentElement: selectionTreeChartRef.current },
       {},
@@ -139,11 +138,17 @@ export default function SelectionTreeView() {
   return (
     <div className="selection-tree-container">
       <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
-      {isInitialSongSelected ? null : (
-        <div className="selection-tree-guidence">
+      {isInitialSongSelected ? (
+        <h6>
+          Explore similar songs by following down a branching tree of similar
+          tracks
+        </h6>
+      ) : (
+        <h6 className="selection-tree-guidence">
           Search and select a song to proceed.
-        </div>
+        </h6>
       )}
+
       <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
       <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
     </div>

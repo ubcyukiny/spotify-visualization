@@ -24,13 +24,13 @@ export default class BoxPlot {
 
     addSongPoints() {
         let vis = this;
-    
+
         vis.attributes.forEach(attribute => {
             let songPoints = vis.svg.selectAll(`.song-point-${attribute}`)
                 .data(vis.songData.map((d, index) => ({ ...d, index })), d => d.name + "-" + attribute);
-    
+
             songPoints.exit().remove();
-    
+
             songPoints.enter()
                 .append("circle")
                 .attr("class", `song-point-${attribute}`)
@@ -52,8 +52,8 @@ export default class BoxPlot {
                         `<strong>${d.name}</strong><br/>` +
                         `${attribute}: ${d.features.find(f => f.axis === attribute)?.value.toFixed(2) || 'N/A'}`
                     )
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
                 })
                 .on("mouseout", function () {
                     d3.select(this).attr('r', 4); // Reset radius on mouseout
@@ -62,27 +62,27 @@ export default class BoxPlot {
                 });
         });
     }
-    
+
     addSongLines() {
         let vis = this;
-    
+
         const lineGenerator = d3.line()
             .x(d => vis.xScale(d.axis) + vis.config.margin.left + vis.xScale.bandwidth() / 2)
             .y(d => {
                 // If value is 0, map to bottom of chart, otherwise use normal scale
                 return d.value !== 0 ? vis.yScale(d.value) + vis.config.margin.top : vis.height + vis.config.margin.top;
             });
-    
+
         const orderedData = vis.songData.map(song => ({
             ...song,
             features: vis.attributes.map(attr => song.features.find(f => f.axis === attr) || { axis: attr, value: 0 })
         }));
-    
+
         vis.songLines = vis.svg.selectAll('.song-line')
             .data(orderedData, d => d.name);
-    
+
         vis.songLines.exit().remove();
-    
+
         vis.songLines.enter()
             .append('path')
             .attr('class', 'song-line')
@@ -99,8 +99,8 @@ export default class BoxPlot {
                     `<img src="${d.cover}" alt="${d.name}" style="width:50px;height:auto;"><br>` +
                     `<strong>${d.name}</strong>`
                 )
-                .style("left", (event.pageX) + "px")
-                .style("top", (event.pageY - 28) + "px");
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", function () {
                 d3.select(this).attr('stroke-width', 3);
@@ -108,7 +108,7 @@ export default class BoxPlot {
                     .style("opacity", 0);
             });
     }
-    
+
 
     initVis() {
         let vis = this;
@@ -175,9 +175,10 @@ export default class BoxPlot {
         vis.xAxisGroup.call(vis.xAxis);
         vis.yAxisGroup.call(vis.yAxis);
 
-        this.addSongPoints();
-        this.addSongLines(); // Call the new function to draw lines
+        // Call the new function to draw lines
         vis.renderVis();
+        this.addSongPoints();
+        this.addSongLines();
     }
 
     renderVis() {
