@@ -19,3 +19,13 @@
 #selectionTreeTooltip .attr-container {
     text-align: left;
 }
+
+#selectionTreeChart {
+    margin:auto;
+}
+
+.selection-tree-guidence{
+    margin: auto;
+
+
+}

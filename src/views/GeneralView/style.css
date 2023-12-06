@@ -10,42 +10,40 @@
   padding: 8px 12px;
   color: white;
   border: none;
+  font-size: medium;
   border-radius: 8px;
-  }
+}
 
 .mode-button:hover:enabled {
   background-color: #27272a;
   cursor: pointer;
 }
 
-
-
 .mode-button.selected {
   background-color: #1db954;
 }
 
-.mode-button.selected:hover:enabled{
-    background-color: #1ed760;
-    cursor: pointer;
+.mode-button.selected:hover:enabled {
+  background-color: #1ed760;
+  cursor: pointer;
 }
 
-.mode-button-container{
-    display: flex;
-    gap: 10px;
-    width: fit-content;
-    margin: auto;
-    padding: 8px;    
+.mode-button-container {
+  display: flex;
+  gap: 10px;
+  width: fit-content;
+  margin: auto;
+  padding: 8px;
 }
 
-.mode-button:disabled{
-    background-color: none;
-    color:#27272a
+.mode-button:disabled {
+  background-color: none;
+  color: #27272a;
 }
-
-
 
 .left-section {
   width: 30%;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   padding: 10px;
@@ -53,8 +51,17 @@
   gap: 10px;
 }
 
+.flow-section {
+  position: fixed;
+  width: 28%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .right-section {
-    width: 70%;
+  width: 70%;
   display: flex;
   flex-direction: column;
   padding: 10px;

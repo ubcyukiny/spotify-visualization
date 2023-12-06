@@ -47,7 +47,7 @@ const HeatMapView = () => {
       setData(null);
       // set heatmap.playlist to user selectedSongs
       heatMap.playlist.playlistID = null;
-      heatMap.playlist.playlistTitle = 'Selected Songs';
+      heatMap.playlist.playlistTitle = 'Your PlayList';
       heatMap.playlist.playlistImageUrl = "https://community.spotify.com/t5/image/serverpage/image-id/55829iC2AD64ADB887E2A5/image-dimensions/2500?v=v2&px=-1";
       heatMap.playlist.playlistUrl = null;
       heatMap.playlist.playlistDescription = ''
@@ -227,7 +227,7 @@ const HeatMapView = () => {
             }`}
           onClick={() => setHeatMapMode('selectedSongs')}
         >
-          Selected Songs
+          Your PlayList
         </button>
         <button
           className={`mode-button ${heatMapMode === "selectedPlaylist" ? 'selected' : ""

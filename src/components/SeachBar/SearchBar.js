@@ -116,9 +116,6 @@ const SearchBar = () => {
       </div>
 
       <div className="results-container">
-        {trackResults.length === 0 && appMode === "track" || playlistResults.length === 0 && appMode === "playlist" ? (
-          <div className="no-results">{`Search a ${appMode} to start`}</div>
-        ) : null}
         {appMode === "track"
           ? trackResults.map((track) => (
               <div className="track-item" key={track.id}>

@@ -1,21 +1,43 @@
-.axis-label{
-    font-size: small;
+.axis-label {
+  font-size: small;
 }
 
 .radar-tooltip {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    background-color: #09090b;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #27272a;
-    transition: opacity 0.3s; 
+  opacity: 0;
+  position: absolute;
+  background-color: #09090b;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #27272a;
+  transition: opacity 0.3s;
 
-    color: white;             
-    font-size: 14px;         
-    line-height: 1.5;        
-    display: flex;
-    gap: 10px;
-    text-align: left;
+  color: white;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+  text-align: left;
+  z-index: 100;
+  align-items: center;
+  
+}
+
+.tooltip-cover {
+  width: 100px;
+  height: auto;
+}
+
+.tooltip-remove {
+    height: fit-content;
+    width:fit-content;
+  padding: 8px;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tooltip-remove:hover {
+  background-color: #ef4444;
 }

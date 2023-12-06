@@ -7,9 +7,15 @@ export const SelectedSongsProvider = ({ children }) => {
   const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
   const [appMode, setAppMode] = useState("track"); // track or playlist
 
+  const songLimit = 10;
+
   // const addSong = (song) => {
   //   setSelectedSongs([...selectedSongs, song]);
   // };
+
+  const moreSongsCanBeAdded = () => {
+    return selectedSongs.length < songLimit;
+  }
 
   // using functional update
   const addSong = (newSong) => {
@@ -22,6 +28,12 @@ export const SelectedSongsProvider = ({ children }) => {
       );
       if (isSongAlreadyAdded) {
         // Optionally handle the duplicate case, such as showing a message to the user
+        alert("Song already added");
+        return prevSelectedSongs;
+      }
+
+      if (prevSelectedSongs.length >= songLimit) {
+        alert("Song limit reached");
         return prevSelectedSongs;
       }
       return [...prevSelectedSongs, newSong];
@@ -58,6 +70,7 @@ export const SelectedSongsProvider = ({ children }) => {
         setPlaylistId,
         removePlaylistId,
         setAppMode,
+        moreSongsCanBeAdded,
       }}
     >
       {children}

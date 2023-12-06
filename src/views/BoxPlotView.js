@@ -143,7 +143,7 @@ const BoxPlotView = () => {
   }, [boxPlot, data, songData, playlistName, playlistImage]);
 
   return (
-    <div>
+    <div className="plot-div">
       <svg ref={boxPlotRef} id="boxplot"></svg>
     </div>
   );

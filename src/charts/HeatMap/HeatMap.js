@@ -153,7 +153,7 @@ export default class HeatMap {
                 track.features[0][key] *= 10
             })
         })
-
+        console.log(processedData);
         // process data for heatmap rect
         vis.heatmapData = [];
         processedData.forEach(track => {
@@ -162,7 +162,8 @@ export default class HeatMap {
                     track_id: track.id,
                     trackName: track.name,
                     attribute: attribute,
-                    value: track.features[0][attribute]
+                    value: track.features[0][attribute],
+                    artist: track.artists.map(artist => artist.name).join(', ')
                 });
             });
         });
@@ -170,11 +171,9 @@ export default class HeatMap {
         // update yScale according to data.
         let numberOfRows = processedData.length;
         let rowHeight = vis.height / 10; // default rect height when numRows = 10
-
         vis.yScale
             .range([0, numberOfRows * rowHeight])
-            .domain(vis.data.map(d => truncateString(d.name, vis.config.truncateStringLength)))
-
+            .domain(vis.data.map(d => `${d.name}-${d.id}`));
         vis.renderVis();
     }
 
@@ -277,15 +276,19 @@ export default class HeatMap {
 
         // positioning track_names
         vis.yAxisG
-            .selectAll('text')
+            .selectAll('.tick text')
             .data(vis.data)
+            .text(d => {
+                // Split the string songName-songID
+                const split = d.name.split(" - ");
+                return truncateString(split[0],20);
+            })
             .attr('url', d => d.external_urls.spotify)
             .attr('x', -vis.config.margin.left + vis.yScale.bandwidth() * 3.5)
             .style(`text-anchor`, `start`)
             .style('cursor', 'pointer')
             .on('click', function (event, d) {
                 window.open(d.external_urls.spotify, '_blank');
-                // change it to interact with select songs perhaps
             })
             .on('mouseover', function () {
                 d3.select(this).style('text-decoration', 'underline');
@@ -324,7 +327,7 @@ export default class HeatMap {
             .attr('class', 'rect')
             .attr('track_id', d => d.track_id)
             .attr("x", d => vis.xScale(d.attribute))
-            .attr("y", d => vis.yScale(truncateString(d.trackName, vis.config.truncateStringLength)))
+            .attr("y", d => vis.yScale(`${d.trackName}-${d.track_id}`))
             .attr("rx", 5)
             .attr("ry", 5)
             .attr("width", vis.xScale.bandwidth())
@@ -344,7 +347,7 @@ export default class HeatMap {
                     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
                     .html(`
                     <div class="heatmap-tooltip-title">${d.trackName}</div>
-                    <div><i>${findArtistByTrackName(vis.data, d.trackName)}</i></div>
+                    <div><i>${d.artist}</i></div>
                     <div>${capitalize(d.attribute)}: ${d.value.toFixed(2)}</div>
                 `);
                 d3.select(event.currentTarget)
@@ -382,12 +385,6 @@ export default class HeatMap {
 }
 
 //helper functions
-
-function findArtistByTrackName(tracks, trackName) {
-    const track = tracks.find(track => track.name === trackName);
-    return track ? track.artists[0].name : null;
-}
-
 function truncateString(str, num) {
     if (str.length > num) {
         return str.slice(0, num) + "...";
