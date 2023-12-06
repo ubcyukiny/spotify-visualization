@@ -11,7 +11,7 @@ export default class RadarChart {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 1200,
-      containerHeight: _config.containerHeight || 500,
+      containerHeight: _config.containerHeight || 400,
       margin: _config.margin || { top: 20, right: 20, bottom: 20, left: 20 },
       tooltipPadding: _config.tooltipPadding || 15,
       chartOffset: _config.chartOffset || 50,

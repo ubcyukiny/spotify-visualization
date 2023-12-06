@@ -62,7 +62,21 @@
 .plot-div {
   width: 100%;
   max-width: 1200px;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   align-items: start;
+}
+
+.selection-tree-container {
+  width: 100%;
+  max-width: 1200px;
+  height: fit-content;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 10px;
 }

@@ -35,7 +35,7 @@ export default function SelectionTreeSearchBar({ setInitialSong }) {
   };
 
   return (
-    <div className="search-container">
+    <div className="selection-search-container">
       <div className="selection-searchbar-container">
         <input
           type="text"
@@ -50,7 +50,7 @@ export default function SelectionTreeSearchBar({ setInitialSong }) {
       </div>
 
       {!showResult ? null : (
-        <div className="results-container">
+        <div className="selection-results-container">
           {results.map((track) => (
             <div className="track-item" key={track.id}>
               <img
