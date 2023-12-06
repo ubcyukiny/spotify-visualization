@@ -1,7 +1,7 @@
 ## References
 
 1. **Nadieh Bremer's Gist on Radar Charts**  
-   A sample implementation on radar charts.  
+   A sample implementation on radar charts.
    [Nadieh Bremer's Radar Chart Gist](https://gist.github.com/nbremer/21746a9668ffdf6d8242)
 
 2. **Radar Chart JavaScript Implementation**  
