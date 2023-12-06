@@ -5,21 +5,110 @@ import "./style.css";
 const boxPlotTooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
-    
+
 export default class BoxPlot {
-    constructor(_config, _data, _playlistName = '', _playlistImage = '') {
+    constructor(_config, _data, _playlistName = '', _playlistImage = '', _songData = []) {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: _config.containerWidth || 1200,
-            containerHeight: _config.containerHeight || 450,
-            margin: _config.margin || { top: 80, right: 20, bottom: 30, left: 40 }
+            containerHeight: _config.containerHeight || 520,
+            margin: _config.margin || { top: 80, right: 20, bottom: 80, left: 40 }
         };
         this.data = _data;
+        this.songData = _songData;
         this.playlistName = _playlistName;
         this.playlistImage = _playlistImage;
         this.attributes = ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo'];
         this.initVis();
     }
+
+    addSongPoints() {
+        let vis = this;
+    
+        vis.attributes.forEach(attribute => {
+            let songPoints = vis.svg.selectAll(`.song-point-${attribute}`)
+                .data(vis.songData.map((d, index) => ({ ...d, index })), d => d.name + "-" + attribute);
+    
+            songPoints.exit().remove();
+    
+            songPoints.enter()
+                .append("circle")
+                .attr("class", `song-point-${attribute}`)
+                .merge(songPoints)
+                .attr("cx", d => vis.xScale(attribute) + vis.config.margin.left + vis.xScale.bandwidth() / 2)
+                .attr("cy", d => {
+                    const featureObj = d.features.find(f => f.axis === attribute);
+                    const featureValue = featureObj ? featureObj.value : 0;
+                    return vis.yScale(featureValue) + vis.config.margin.top;
+                })
+                .attr("r", 6)
+                .attr("fill", d => d3.schemeCategory10[d.index % 10])
+                .on("mouseover", function (event, d) {
+                    d3.select(this).attr('r', 9); // Increase radius on hover
+                    boxPlotTooltip.transition()
+                        .style("opacity", .9);
+                    boxPlotTooltip.html(
+                        `<img src="${d.cover}" alt="${d.name}" style="width:50px;height:auto;"><br>` +
+                        `<strong>${d.name}</strong><br/>` +
+                        `${attribute}: ${d.features.find(f => f.axis === attribute)?.value.toFixed(2) || 'N/A'}`
+                    )
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function () {
+                    d3.select(this).attr('r', 4); // Reset radius on mouseout
+                    boxPlotTooltip.transition()
+                        .style("opacity", 0);
+                });
+        });
+    }
+    
+    addSongLines() {
+        let vis = this;
+    
+        const lineGenerator = d3.line()
+            .x(d => vis.xScale(d.axis) + vis.config.margin.left + vis.xScale.bandwidth() / 2)
+            .y(d => {
+                // If value is 0, map to bottom of chart, otherwise use normal scale
+                return d.value !== 0 ? vis.yScale(d.value) + vis.config.margin.top : vis.height + vis.config.margin.top;
+            });
+    
+        const orderedData = vis.songData.map(song => ({
+            ...song,
+            features: vis.attributes.map(attr => song.features.find(f => f.axis === attr) || { axis: attr, value: 0 })
+        }));
+    
+        vis.songLines = vis.svg.selectAll('.song-line')
+            .data(orderedData, d => d.name);
+    
+        vis.songLines.exit().remove();
+    
+        vis.songLines.enter()
+            .append('path')
+            .attr('class', 'song-line')
+            .merge(vis.songLines)
+            .attr('d', d => lineGenerator(d.features))
+            .attr('fill', 'none')
+            .attr('stroke', (d, i) => d3.schemeCategory10[i % 10])
+            .attr('stroke-width', 3)
+            .on("mouseover", function (event, d) {
+                d3.select(this).attr('stroke-width', 5);
+                boxPlotTooltip.transition()
+                    .style("opacity", .9);
+                boxPlotTooltip.html(
+                    `<img src="${d.cover}" alt="${d.name}" style="width:50px;height:auto;"><br>` +
+                    `<strong>${d.name}</strong>`
+                )
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr('stroke-width', 3);
+                boxPlotTooltip.transition()
+                    .style("opacity", 0);
+            });
+    }
+    
 
     initVis() {
         let vis = this;
@@ -49,22 +138,25 @@ export default class BoxPlot {
             .attr('width', vis.config.containerWidth)
             .attr('height', vis.config.containerHeight)
 
-        // Append groups for axes
-        vis.svg.append('g')
+        // Initialize X and Y axes
+        vis.xAxisGroup = vis.svg.append('g')
             .attr('class', 'axis x-axis')
-            .attr('transform', `translate(${vis.config.margin.left}, ${vis.height + vis.config.margin.top})`); // Correct translation for x-axis
+            .attr('transform', `translate(${vis.config.margin.left}, ${vis.height + vis.config.margin.top})`);
 
-        vis.svg.append('g')
+        vis.yAxisGroup = vis.svg.append('g')
             .attr('class', 'axis y-axis')
-            .attr('transform', `translate(${vis.config.margin.left}, ${vis.config.margin.top})`); // Translate y-axis
+            .attr('transform', `translate(${vis.config.margin.left}, ${vis.config.margin.top})`);
     }
+
 
     updateVis() {
         let vis = this;
 
         // Process data for box plot
         vis.boxPlotData = vis.attributes.map(attribute => {
-            let values = vis.data.map(d => d[attribute]).filter(v => v != null).sort(d3.ascending);
+            let values = vis.data.map(d => d[attribute])
+                .filter(v => v != null)
+                .sort(d3.ascending);
             let q1 = d3.quantile(values, 0.25);
             let median = d3.quantile(values, 0.5);
             let q3 = d3.quantile(values, 0.75);
@@ -79,6 +171,12 @@ export default class BoxPlot {
         vis.xScale.domain(vis.attributes);
         vis.yScale.domain([d3.min(vis.boxPlotData, d => d.min), d3.max(vis.boxPlotData, d => d.max)]);
 
+        // Update axes
+        vis.xAxisGroup.call(vis.xAxis);
+        vis.yAxisGroup.call(vis.yAxis);
+
+        this.addSongPoints();
+        this.addSongLines(); // Call the new function to draw lines
         vis.renderVis();
     }
 
@@ -99,7 +197,7 @@ export default class BoxPlot {
 
         titleSelection.exit().remove();
 
-        // Updateimage
+        // Update image
         let imageSelection = vis.svg.selectAll('.playlist-image')
             .data(vis.playlistImage ? [vis.playlistImage] : []);
 
@@ -171,10 +269,6 @@ export default class BoxPlot {
             .attr('stroke', 'white');
 
         whiskers.exit().remove(); // Remove excess lines
-
-        // Update axes
-        vis.svg.select('.x-axis').call(vis.xAxis);
-        vis.svg.select('.y-axis').call(vis.yAxis);
 
         vis.boxGroups.on("mouseover", function (event, d) {
             boxPlotTooltip.transition()
