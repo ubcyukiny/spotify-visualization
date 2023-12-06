@@ -124,10 +124,10 @@ export default function SelectionTreeView() {
     }
 
     return (
-        <div>
-            <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
-            <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
-            <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
-        </div>
+      <div className="plot-div">
+        <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
+        <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
+        <div id="selectionTreeTooltip" className="selection-tree-tooltip"></div>
+      </div>
     );
 }

@@ -1,0 +1,9 @@
+.selection-searchbar-container {
+  display: flex;
+  margin:auto;
+  width: fit-content;
+  gap: 10px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  background-color: #09090b;
+}

@@ -46,10 +46,19 @@
 
 .left-section {
   width: 30%;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   padding: 10px;
   align-items: flex-start;
+  gap: 10px;
+}
+
+.flow-section {
+    position: fixed;
+    width: 28%;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 

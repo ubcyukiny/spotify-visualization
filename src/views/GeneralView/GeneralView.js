@@ -23,39 +23,16 @@ const GeneralView = () => {
       ) : (
         <div className="general-view-container">
           <div className="left-section">
-            <SearchBar />
-            <SelectedSongsList />
+            <div className="flow-section">
+              <SearchBar />
+              <SelectedSongsList />
+            </div>
           </div>
           <div className="right-section">
-            <div className="mode-button-container">
-              <button
-                className={`mode-button ${
-                  panelMode === "explore" ? "selected" : ""
-                }`}
-                onClick={() => setPanelMode("explore")}
-              >
-                Explore
-              </button>
-              <button
-                className={`mode-button ${
-                  panelMode === "explore" ? "" : "selected"
-                }`}
-                onClick={() => setPanelMode("overview")}
-              >
-                Overview
-              </button>
-            </div>
-            {panelMode === "explore" ? (
-              <div className="explore-panel">
-                <SelectionTreeView />
-                <RadarChartView />
-              </div>
-            ) : (
-              <div className="overview-panel">
-                <HeatMapView />
-                <BoxPlotView />
-              </div>
-            )}
+            <SelectionTreeView />
+            <RadarChartView />
+            <HeatMapView />
+            <BoxPlotView />
           </div>
         </div>
       )}
