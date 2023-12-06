@@ -140,8 +140,7 @@ export default function SelectionTreeView() {
       <SelectionTreeSearchBar setInitialSong={selectInitialSong} />
       {isInitialSongSelected ? null : (
         <div className="selection-tree-guidence">
-          Search for and select a song to
-          proceed.
+          Search and select a song to proceed.
         </div>
       )}
       <svg ref={selectionTreeChartRef} id="selectionTreeChart"></svg>
