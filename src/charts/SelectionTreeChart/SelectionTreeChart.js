@@ -56,8 +56,6 @@ export default class SelectionTreeChart {
 
         vis.root = d3.hierarchy(vis.data, d => d.children);
         vis.cluster(vis.root);
-        // console.log("update called");
-        // console.log(vis.root);
 
         this.renderVis();
     }
@@ -70,20 +68,17 @@ export default class SelectionTreeChart {
                     <div class="node-track-title">${track.name}</div>
                     <div><i>${track.artists.reduce((output, artistName) => output + artistName + ", ", "").slice(0, -2)}</i></div>
                     <div class="attr-container">
-                        <div>Danceability: ${track.danceability}</div>
-                        <div>Energy: ${track.energy}</div>
-                        <div>Instrumentalness: ${track.instrumentalness}</div>
-                        <div>Liveness: ${track.liveness}</div>
-                        <div>Loudness: ${track.loudness}</div>
-                        <div>Speechiness: ${track.speechiness}</div>
-                        <div>Tempo: ${track.tempo}</div>
-                        <div>Valence: ${track.valence}</div>
+                        <div>Danceability: ${( ( track.danceability / 1) * 10 ).toFixed(2)}</div>
+                        <div>Energy: ${( ( track.energy / 1) * 10 ).toFixed(2)}</div>
+                        <div>Instrumentalness: ${( ( track.instrumentalness / 1) * 10 ).toFixed(2)}</div>
+                        <div>Liveness: ${( ( track.liveness / 1) * 10 ).toFixed(2)}</div>
+                        <div>Loudness: ${( ( ( track.loudness + 60 ) / 60) * 10 ).toFixed(2)}</div>
+                        <div>Speechiness: ${( ( track.speechiness / 1) * 10 ).toFixed(2)}</div>
+                        <div>Tempo: ${( ( track.tempo ) ).toFixed(2)}</div>
+                        <div>Valence: ${( ( track.valence / 1) * 10 ).toFixed(2)}</div>
                     </div>
                     `;
         }
-
-        // console.log("root");
-        // console.log (vis.root.descendants());
 
         vis.chart.selectAll('path')
             .data(vis.root.descendants().slice(1))
