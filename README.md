@@ -31,3 +31,7 @@
 8. **Hooks at a Glance**
    this documentation page provides tutorial and instrucions on how to use hooks in React
    [Hooks at a Glance](https://legacy.reactjs.org/docs/hooks-overview.html)
+
+9. **Simple Dendrograms using D3.js**
+   this resource provides basic code and interaction with creating dendrograms in D3
+   [Simple Dendrograms using D3.js](https://d3-graph-gallery.com/dendrogram.html)
