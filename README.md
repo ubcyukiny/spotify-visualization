@@ -29,7 +29,7 @@
    [Chapter 05 Lines](http://using-d3js.com/05_02_lines.html)
 
 8. **Hooks at a Glance**
-   this documentation page provides tutorial and instrucions on how to use hooks in React
+   this documentation page provides tutorial and instructions on how to use hooks in React
    [Hooks at a Glance](https://legacy.reactjs.org/docs/hooks-overview.html)
 
 9. **Simple Dendrograms using D3.js**
